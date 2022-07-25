@@ -6,7 +6,6 @@ import icu.ketal.utils.logger
 import io.ktor.server.engine.applicationEngineEnvironment
 import io.ktor.server.engine.connector
 import io.ktor.server.engine.embeddedServer
-import io.ktor.server.engine.withPort
 import io.ktor.server.netty.Netty
 
 fun main() {
@@ -14,7 +13,7 @@ fun main() {
         log = logger
 
         connector {
-            withPort(PORT_DEV)
+            port = PORT_DEV
         }
 
         module {

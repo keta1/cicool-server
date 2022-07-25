@@ -1,5 +1,6 @@
 package icu.ketal.plugins
 
+import icu.ketal.data.Version
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.Application
 import io.ktor.server.application.call
@@ -16,7 +17,7 @@ fun Application.configureRouting() {
 
     routing {
         get("/") {
-            call.respond(mapOf("hello" to "world"))
+            call.respond(Version())
         }
     }
 }

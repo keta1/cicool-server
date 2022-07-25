@@ -1,6 +1,8 @@
 package icu.ketal
 
+import icu.ketal.data.Version
 import icu.ketal.plugins.configureRouting
+import icu.ketal.utils.encodeToJson
 import io.ktor.client.request.get
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpStatusCode
@@ -16,7 +18,7 @@ class ApplicationTest {
         }
         client.get("/").apply {
             assertEquals(HttpStatusCode.OK, status)
-            assertEquals("{\"hello\":\"world\"}", bodyAsText())
+            assertEquals(Version().encodeToJson(), bodyAsText())
         }
     }
 }
