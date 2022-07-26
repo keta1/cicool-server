@@ -5,6 +5,7 @@ import icu.ketal.table.UserDb
 import icu.ketal.utils.TimeUtil
 import icu.ketal.utils.WechatUtils
 import icu.ketal.utils.logger
+import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.Application
 import io.ktor.server.application.call
 import io.ktor.server.request.receive
@@ -22,11 +23,13 @@ fun Application.configureUserRouting() {
                 val session = WechatUtils.code2Session(req.code)
                 if (session.errCode != 0) {
                     call.respond(
+                        HttpStatusCode.Forbidden,
                         UserLoginResponse(
                             errcode = session.errCode,
                             errmsg = session.errMsg
                         )
                     )
+                    return@runCatching
                 }
                 val user = transaction {
                     val user = User.find { UserDb.openId eq session.openId }.firstOrNull()
@@ -52,6 +55,7 @@ fun Application.configureUserRouting() {
             }.onFailure {
                 logger.warn(it.stackTraceToString())
                 call.respond(
+                    HttpStatusCode.Forbidden,
                     call.respond(
                         UserLoginResponse(
                             errcode = 403,
