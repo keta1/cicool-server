@@ -16,7 +16,7 @@ fun Application.configureRouting() {
     }
 
     routing {
-        get("/") {
+        get("/cicool") {
             call.respond(Version())
         }
     }
