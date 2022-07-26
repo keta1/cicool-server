@@ -40,6 +40,6 @@ class AESCryptTest {
                 "\"watermark\":{\"timestamp\":1477314187," +
                 "\"appid\":\"wx4f4bc4dec97d474b\"}}"
 
-        assertEquals(AESCrypt.decrypt(sessionKey, iv, encryptedData), decrypted)
+        assertEquals(AESCrypt.decryptWechatData(sessionKey, iv, encryptedData), decrypted)
     }
 }

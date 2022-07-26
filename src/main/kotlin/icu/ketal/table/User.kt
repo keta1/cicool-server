@@ -6,6 +6,8 @@ import org.jetbrains.exposed.dao.id.IntIdTable
 
 object UserDb : IntIdTable() {
     val openId = varchar("openid", length = 128)
+    val sessionKey = varchar("session_key", length = 128)
+    val salt = varchar("salt", length = 128)
     val createTime = long("c_time").default(-1)
     val lastLogin = long("last_login").default(-1)
     val nickName = varchar("nick_name", length = 128).default("")
