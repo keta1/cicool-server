@@ -10,7 +10,7 @@ object UserDb : IntIdTable() {
     val lastLogin = long("last_login").default(-1)
     val nickName = varchar("nick_name", length = 128).default("")
     val avatarPic = varchar("avatar_pic", length = 512).default("")
-    val bookId = long("book_id").default(-1)
+    val bookId = integer("book_id").default(-1)
     val settings = varchar("settings", length = 1024).default("")
     val ofMatrix = varchar("of_matrix", length = 1024).default(
         OFMatrix(

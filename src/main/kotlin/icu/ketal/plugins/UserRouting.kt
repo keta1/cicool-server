@@ -1,7 +1,6 @@
 package icu.ketal.plugins
 
 import icu.ketal.dao.User
-import icu.ketal.data.webErr
 import icu.ketal.table.UserDb
 import icu.ketal.utils.TimeUtil
 import icu.ketal.utils.WechatUtils
@@ -19,9 +18,17 @@ fun Application.configureUserRouting() {
     routing {
         post("cicool/user/login") {
             kotlin.runCatching {
-                val req = call.receive<UserRegisterRequest>()
+                val req = call.receive<UserLoginRequest>()
                 val session = WechatUtils.code2Session(req.code)
-                transaction {
+                if (session.errCode != 0) {
+                    call.respond(
+                        UserLoginResponse(
+                            errcode = session.errCode,
+                            errmsg = session.errMsg
+                        )
+                    )
+                }
+                val user = transaction {
                     val user = User.find { UserDb.openId eq session.openId }.firstOrNull()
                     if (user == null) {
                         User.new {
@@ -33,20 +40,63 @@ fun Application.configureUserRouting() {
                         }
                     } else {
                         user.lastLogin = TimeUtil.now
+                        user
                     }
                 }
-                call.respond(session)
+                call.respond(
+                    UserLoginResponse(
+                        errcode = 0,
+                        data = UserLoginResponse.UserInfo.fromUser(user)
+                    )
+                )
             }.onFailure {
                 logger.warn(it.stackTraceToString())
-                call.respond(webErr())
+                call.respond(
+                    call.respond(
+                        UserLoginResponse(
+                            errcode = 403,
+                            errmsg = it.message
+                        )
+                    )
+                )
             }
         }
     }
 }
 
 @Serializable
-data class UserRegisterRequest(
+data class UserLoginRequest(
     val code: String,
     val nickName: String,
     val avatarUrl: String
 )
+
+@Serializable
+data class UserLoginResponse(
+    val errcode: Int,
+    val errmsg: String? = null,
+    val data: UserInfo? = null,
+) {
+    @Serializable
+    data class UserInfo(
+        val id: Int,
+        val avatarPic: String,
+        val nickName: String,
+        val createTime: Long,
+        val lastLogin: Long,
+        val bookId: Int
+    ) {
+        companion object {
+            fun fromUser(user: User): UserInfo {
+                return UserInfo(
+                    id = user.id.value,
+                    avatarPic = user.avatarPic,
+                    nickName = user.nickName,
+                    createTime = user.createTime,
+                    lastLogin = user.lastLogin,
+                    bookId = user.bookId
+                )
+            }
+        }
+    }
+}
