@@ -1,3 +1,6 @@
+import java.io.FileInputStream
+import java.util.*
+
 val ktorVersion: String by project
 val kotlinVersion: String by project
 val logbackVersion: String by project
@@ -15,6 +18,11 @@ application {
 
     val isDevelopment: Boolean = project.ext.has("development")
     applicationDefaultJvmArgs = listOf("-Dio.ktor.development=$isDevelopment")
+}
+
+tasks.withType<JavaExec> {
+    systemProperties["AppSecret"] = getLocalProperty("AppSecret")
+    systemProperties["AppId"] = getLocalProperty("AppId")
 }
 
 repositories {
@@ -37,12 +45,26 @@ dependencies {
     implementation("io.ktor:ktor-server-content-negotiation-jvm:$ktorVersion")
     implementation("io.ktor:ktor-serialization-kotlinx-json-jvm:$ktorVersion")
     implementation("io.ktor:ktor-server-netty-jvm:$ktorVersion")
+    implementation("io.ktor:ktor-client-core-jvm:$ktorVersion")
+    implementation("io.ktor:ktor-client-okhttp:$ktorVersion")
 
     implementation("ch.qos.logback:logback-classic:$logbackVersion")
-    implementation("org.xerial:sqlite-jdbc:3.36.0.3")
+    runtimeOnly("org.xerial:sqlite-jdbc:3.36.0.3")
     implementation("org.jetbrains.exposed:exposed-core:0.38.2")
+    implementation("org.jetbrains.exposed:exposed-dao:0.38.2")
     runtimeOnly("org.jetbrains.exposed:exposed-jdbc:0.38.2")
 
     testImplementation("io.ktor:ktor-server-tests-jvm:$ktorVersion")
     testImplementation(kotlin("test-junit", kotlinVersion))
+}
+
+fun Project.getLocalProperty(key: String, file: String = "local.properties"): Any {
+    val properties = Properties()
+    val localProperties = File(file)
+    if (localProperties.isFile) {
+        FileInputStream(File(rootProject.rootDir, "local.properties")).use { reader ->
+            properties.load(reader)
+        }
+    } else error("File from not found")
+    return properties.getProperty(key)
 }
