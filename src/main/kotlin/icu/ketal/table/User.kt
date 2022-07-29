@@ -5,16 +5,15 @@ import kotlinx.serialization.Serializable
 import org.jetbrains.exposed.dao.id.IntIdTable
 
 object UserDb : IntIdTable() {
-    val openId = varchar("openid", length = 128)
-    val sessionKey = varchar("session_key", length = 128)
-    val salt = varchar("salt", length = 128)
+    val openId = text("openid")
+    val sessionKey = text("session_key")
+    val salt = text("salt")
     val createTime = long("c_time").default(-1)
     val lastLogin = long("last_login").default(-1)
-    val nickName = varchar("nick_name", length = 128).default("")
-    val avatarPic = varchar("avatar_pic", length = 512).default("")
+    val nickName = text("nick_name").default("")
+    val avatarPic = text("avatar_pic").default("")
     val bookId = integer("book_id").default(-1)
-    val settings = varchar("settings", length = 1024).default("")
-    val ofMatrix = varchar("of_matrix", length = 1024).default(
+    val ofMatrix = text("of_matrix").default(
         OFMatrix(
             HashMap<String, Collection<Int>>().apply {
                 (13..28).map { it * 0.1 }

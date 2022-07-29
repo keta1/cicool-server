@@ -17,8 +17,8 @@ class User(id: EntityID<Int>) : IntEntity(id) {
     var nickName by UserDb.nickName
     var avatarPic by UserDb.avatarPic
     var bookId by UserDb.bookId
-    var settings by UserDb.settings
     var ofMatrix by UserDb.ofMatrix
 
-    val token: String = AESCrypt.encrypt(sessionKey, salt, openId)!!
+    val token: String
+        get() = AESCrypt.encrypt(sessionKey, salt, openId)!!
 }

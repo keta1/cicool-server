@@ -45,7 +45,7 @@ private fun Routing.login() {
                     User.new {
                         openId = session.openId
                         sessionKey = session.sessionKey
-                        salt = genSalt(9)
+                        salt = genSalt(16)
                         createTime = TimeUtil.now
                         lastLogin = createTime
                     }
