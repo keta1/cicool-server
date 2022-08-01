@@ -2,11 +2,11 @@ package icu.ketal.plugins.user
 
 import icu.ketal.dao.User
 import icu.ketal.utils.logger
-import io.ktor.http.*
-import io.ktor.server.application.*
-import io.ktor.server.request.*
-import io.ktor.server.response.*
-import io.ktor.server.routing.*
+import io.ktor.http.HttpStatusCode
+import io.ktor.server.application.call
+import io.ktor.server.request.receive
+import io.ktor.server.response.respond
+import io.ktor.server.routing.post
 import kotlinx.serialization.Serializable
 import org.jetbrains.exposed.sql.transactions.transaction
 
@@ -65,11 +65,9 @@ fun getUserInfo() {
             logger.warn(it.stackTraceToString())
             call.respond(
                 HttpStatusCode.Forbidden,
-                call.respond(
-                    UserLoginResponse(
-                        errcode = 403,
-                        errmsg = it.message
-                    )
+                UserLoginResponse(
+                    errcode = 403,
+                    errmsg = it.message
                 )
             )
         }
