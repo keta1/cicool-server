@@ -77,7 +77,68 @@ private fun Routing.login() {
 }
 
 private fun Routing.changeWordBook() {
-    Unit
+    post("cicool/user/getUserInfo") {
+        kotlin.runCatching {
+            val req = call.receive<UserInfoRequest>()
+            val user = transaction {
+                User.findById(req.id)
+            }
+            val cookie = call.request.cookies["TOKEN"]
+            if (user == null) {
+                call.respond(
+                    HttpStatusCode.Forbidden,
+                    call.respond(
+                        UserLoginResponse(
+                            errcode = 403,
+                            errmsg = "用户不存在"
+                        )
+                    )
+                )
+                return@runCatching
+            } else if (cookie == null) {
+                call.respond(
+                    HttpStatusCode.Forbidden,
+                    call.respond(
+                        UserLoginResponse(
+                            errcode = 403,
+                            errmsg = "用户未登录"
+                        )
+                    )
+                )
+                return@runCatching
+            } else if(user.token != cookie) {
+                println(user.token)
+                println(cookie)
+                call.respond(
+                    HttpStatusCode.Forbidden,
+                    call.respond(
+                        UserLoginResponse(
+                            errcode = 403,
+                            errmsg = "鉴权失败"
+                        )
+                    )
+                )
+                return@runCatching
+            }
+            call.respond(
+                UserInfoResponse(
+                    errcode = 0,
+                    data = UserInfoResponse.UserInfo.fromUser(user)
+                )
+            )
+        }.onFailure {
+            logger.warn(it.stackTraceToString())
+            call.respond(
+                HttpStatusCode.Forbidden,
+                call.respond(
+                    UserLoginResponse(
+                        errcode = 403,
+                        errmsg = it.message
+                    )
+                )
+            )
+        }
+    }
 }
 
 @Serializable
@@ -95,8 +156,8 @@ data class UserLoginResponse(
     data class UserInfo(
         val id: Int,
         val token: String,
-        val avatarPic: String,
         val nickName: String,
+        val avatarPic: String,
         val createTime: Long,
         val lastLogin: Long,
         val bookId: Int
@@ -106,8 +167,43 @@ data class UserLoginResponse(
                 return UserInfo(
                     id = user.id.value,
                     token = user.token,
-                    avatarPic = user.avatarPic,
                     nickName = user.nickName,
+                    avatarPic = user.avatarPic,
+                    createTime = user.createTime,
+                    lastLogin = user.lastLogin,
+                    bookId = user.bookId
+                )
+            }
+        }
+    }
+}
+
+
+@Serializable
+data class UserInfoRequest(
+    val id: Int
+)
+
+
+@Serializable
+data class UserInfoResponse(
+    val errcode: Int,
+    val errmsg: String? = null,
+    val data: UserInfo? = null,
+) {
+    @Serializable
+    data class UserInfo(
+        val nickName: String,
+        val avatarPic: String,
+        val createTime: Long,
+        val lastLogin: Long,
+        val bookId: Int
+    ) {
+        companion object {
+            fun fromUser(user: User): UserInfo {
+                return UserInfo(
+                    nickName = user.nickName,
+                    avatarPic = user.avatarPic,
                     createTime = user.createTime,
                     lastLogin = user.lastLogin,
                     bookId = user.bookId
