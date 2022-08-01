@@ -155,3 +155,11 @@ Content-Type: application/json
 ```
 
 </details>
+
+## 上传用户头像
+
+> https://loaclhost:5301/cicool/user/uploadAvatar
+*请求方式：POST*
+
+认证方式：Cookie(TOKEN)
+

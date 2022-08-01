@@ -19,6 +19,7 @@ fun Application.configureUserRouting() {
             login()
             getUserInfo()
             changeUserInfo()
+            uploadAvatar()
         }
     }
 }

@@ -17,6 +17,8 @@ class ServiceError(
         val UNAUTHORIZED = ServiceError(401, 3, "Unauthorized")
         val FORBIDDEN = ServiceError(403, 4, "Forbidden")
         val NOT_FOUND = ServiceError(404, 5, "Not Found")
+        val FILE_SIZE_UNKNOWN = ServiceError(400, 5, "File Size Unknown")
+        val FILE_SIZE_LIMIT = ServiceError(400, 5, "File Size Is Too Large")
         val INTERNAL_SERVER_ERROR = ServiceError(500, 500, "Internal Server Error")
     }
 }
