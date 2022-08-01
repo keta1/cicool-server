@@ -1,8 +1,9 @@
 package icu.ketal.plugins.user
 
 import icu.ketal.dao.User
+import icu.ketal.data.ServiceError
 import icu.ketal.utils.logger
-import io.ktor.http.HttpStatusCode
+import icu.ketal.utils.respondError
 import io.ktor.server.application.call
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
@@ -19,57 +20,19 @@ fun getUserInfo() {
                 User.findById(req.id)
             }
             val cookie = call.request.cookies["TOKEN"]
-            if (user == null) {
-                call.respond(
-                    HttpStatusCode.Forbidden,
-                    call.respond(
-                        UserLoginResponse(
-                            errcode = 403,
-                            errmsg = "用户不存在"
-                        )
-                    )
-                )
-                return@runCatching
-            } else if (cookie == null) {
-                call.respond(
-                    HttpStatusCode.Forbidden,
-                    call.respond(
-                        UserLoginResponse(
-                            errcode = 403,
-                            errmsg = "用户未登录"
-                        )
-                    )
-                )
-                return@runCatching
-            } else if (user.token != cookie) {
-                println(user.token)
-                println(cookie)
-                call.respond(
-                    HttpStatusCode.Forbidden,
-                    call.respond(
-                        UserLoginResponse(
-                            errcode = 403,
-                            errmsg = "鉴权失败"
-                        )
-                    )
-                )
+            check(req.id, cookie)?.let {
+                call.respondError(it)
                 return@runCatching
             }
             call.respond(
                 UserInfoResponse(
                     errcode = 0,
-                    data = UserInfoResponse.UserInfo(user)
+                    data = UserInfoResponse.UserInfo(user!!)
                 )
             )
         }.onFailure {
             logger.warn(it.stackTraceToString())
-            call.respond(
-                HttpStatusCode.Forbidden,
-                UserLoginResponse(
-                    errcode = 403,
-                    errmsg = it.message
-                )
-            )
+            call.respondError(ServiceError.INTERNAL_SERVER_ERROR)
         }
     }
 }

@@ -1,6 +1,7 @@
 package icu.ketal.plugins.user
 
 import icu.ketal.dao.User
+import icu.ketal.data.ServiceError
 import icu.ketal.table.UserDb
 import icu.ketal.utils.TimeUtil
 import icu.ketal.utils.WechatUtils
@@ -22,10 +23,10 @@ fun login() {
             val session = WechatUtils.code2Session(req.code)
             if (session.errCode != 0) {
                 call.respond(
-                    HttpStatusCode.Forbidden,
-                    UserLoginResponse(
-                        errcode = session.errCode,
-                        errmsg = session.errMsg
+                    ServiceError(
+                        HttpStatusCode.BadRequest.value,
+                        session.errCode,
+                        session.errMsg
                     )
                 )
                 return@runCatching
@@ -54,13 +55,7 @@ fun login() {
             )
         }.onFailure {
             logger.warn(it.stackTraceToString())
-            call.respond(
-                HttpStatusCode.Forbidden,
-                UserLoginResponse(
-                    errcode = 403,
-                    errmsg = it.message
-                )
-            )
+            call.respond(ServiceError.INTERNAL_SERVER_ERROR)
         }
     }
 }
