@@ -9,10 +9,8 @@ import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.server.response.respond
 import io.ktor.server.routing.get
 import io.ktor.server.routing.routing
-import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 
-@OptIn(ExperimentalSerializationApi::class)
 fun Application.configureRouting() {
     install(ContentNegotiation) {
         json(Json {
@@ -22,7 +20,6 @@ fun Application.configureRouting() {
             allowStructuredMapKeys = true
             prettyPrint = false
             useArrayPolymorphism = false
-            explicitNulls = false
         })
     }
 
