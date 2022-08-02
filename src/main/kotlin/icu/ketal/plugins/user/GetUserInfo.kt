@@ -53,14 +53,12 @@ data class UserInfoResponse(
     @Serializable
     data class UserInfo(
         val nickName: String,
-        val avatarPic: String,
         val createTime: Long,
         val lastLogin: Long,
         val bookId: Int
     ) {
         constructor(user: User) : this(
             nickName = user.nickName,
-            avatarPic = user.avatarPic,
             createTime = user.createTime,
             lastLogin = user.lastLogin,
             bookId = user.bookId
