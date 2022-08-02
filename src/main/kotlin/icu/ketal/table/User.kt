@@ -4,7 +4,7 @@ import icu.ketal.utils.encodeToJson
 import kotlinx.serialization.Serializable
 import org.jetbrains.exposed.dao.id.IntIdTable
 
-object UserDb : IntIdTable() {
+object UserDb : IntIdTable("user") {
     val openId = text("openid")
     val sessionKey = text("session_key")
     val salt = text("salt")
