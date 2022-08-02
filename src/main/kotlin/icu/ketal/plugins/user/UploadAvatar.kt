@@ -1,28 +1,39 @@
 package icu.ketal.plugins.user
 
+import icu.ketal.dao.User
 import icu.ketal.data.ServiceError
+import icu.ketal.utils.DOMAIN
 import icu.ketal.utils.FILE_SIZE_LIMIT
 import icu.ketal.utils.FILE_STORE_PATH
 import icu.ketal.utils.logger
 import icu.ketal.utils.respondError
 import io.ktor.server.application.call
 import io.ktor.server.request.receiveStream
-import io.ktor.server.response.respond
+import io.ktor.server.response.respondFile
+import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.Serializable
+import org.jetbrains.exposed.sql.transactions.transaction
 import java.util.*
 import kotlin.io.path.Path
 import kotlin.io.path.createDirectories
 import kotlin.io.path.div
+import kotlin.io.path.exists
 import kotlin.io.path.outputStream
 
 context(UserRouting)
 fun uploadAvatar() {
     routing.post("cicool/user/uploadAvatar") {
         kotlin.runCatching {
-            val fileSize = call.request.headers["Content-Length"]
+            val header = call.request.headers
+            val fileSize = header["Content-Length"]
+            val id = header["X-User-Id"]?.toInt()
+            val cookie = call.request.cookies["TOKEN"]
+            check(id, cookie)?.let {
+                call.respondError(it)
+                return@runCatching
+            }
             if (fileSize == null) {
                 call.respondError(ServiceError.FILE_SIZE_UNKNOWN)
                 return@runCatching
@@ -31,30 +42,39 @@ fun uploadAvatar() {
                 call.respondError(ServiceError.FILE_SIZE_LIMIT)
                 return@runCatching
             }
-            val id = withContext(Dispatchers.IO) {
+            val path = withContext(Dispatchers.IO) {
                 val stream = call.receiveStream()
-                val id = UUID.randomUUID().toString()
-                val path = Path(FILE_STORE_PATH) / "${UUID.randomUUID()}.jpg"
+                val uuid = UUID.randomUUID().toString()
+                val path = Path(FILE_STORE_PATH) / "$uuid.jpg"
                 stream.use {
                     path.parent.createDirectories()
                     it.copyTo(path.outputStream())
                 }
-                id
+
+                path
             }
-            call.respond(
-                UploadAvatarResponse(id = id)
-            )
+            transaction {
+                val user = User.findById(id!!)!!
+                user.avatarPic = "$DOMAIN/cicool/face?path=${path.fileName}"
+            }
+            call.respondError(ServiceError.OK)
         }.onFailure {
             logger.warn(it.stackTraceToString())
             call.respondError(ServiceError.INTERNAL_SERVER_ERROR)
         }
     }
-}
 
-context(UserRouting)
-@Serializable
-data class UploadAvatarResponse(
-    var errcode: Int = 0,
-    var errmsg: String = "OK",
-    var id: String
-)
+    routing.get(FILE_STORE_PATH) {
+        val path = call.request.queryParameters["path"]
+        if (path == null) {
+            call.respondError(ServiceError.FILE_NOT_FOUND)
+            return@get
+        }
+        val file = Path(FILE_STORE_PATH) / path
+        if (!file.exists()) {
+            call.respondError(ServiceError.FILE_NOT_FOUND)
+            return@get
+        }
+        call.respondFile(file.toFile())
+    }
+}

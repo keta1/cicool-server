@@ -15,15 +15,13 @@ fun changeUserInfo() {
     routing.post("cicool/user/changeUserInfo") {
         kotlin.runCatching {
             val req = call.receive<ChangeUserInfoRequest>()
-            val user = transaction {
-                User.findById(req.id)
-            }
             val cookie = call.request.cookies["TOKEN"]
             check(req.id, cookie)?.let {
                 call.respondError(it)
                 return@runCatching
             }
             transaction {
+                val user = User.findById(req.id)
                 req.nickName?.let { user!!.nickName = it }
             }
             call.respondError(ServiceError.OK)

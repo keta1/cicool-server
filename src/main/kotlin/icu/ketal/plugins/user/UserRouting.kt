@@ -25,14 +25,15 @@ fun Application.configureUserRouting() {
 }
 
 context(UserRouting)
-fun check(id: Int, token: String?): ServiceError? {
+fun check(id: Int?, token: String?): ServiceError? {
+    if (id == null || token == null) {
+        return ServiceError.BAD_REQUEST
+    }
     val user = transaction {
         User.findById(id)
     }
     if (user == null) {
-        return ServiceError.USER_NOTFOUND
-    } else if (token == null) {
-        return ServiceError.BAD_REQUEST
+        return ServiceError.USER_NOT_FOUND
     } else if (user.token != token) {
         return ServiceError.UNAUTHORIZED
     }

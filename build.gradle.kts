@@ -23,8 +23,9 @@ application {
 }
 
 tasks.withType<JavaExec> {
-    systemProperties["AppSecret"] = getLocalProperty("AppSecret")
-    systemProperties["AppId"] = getLocalProperty("AppId")
+    getLocalProperty().forEach { key, value ->
+        systemProperties[key as String] = value
+    }
 }
 
 repositories {
@@ -58,12 +59,13 @@ dependencies {
     implementation("org.jetbrains.exposed:exposed-core:$exposedVersion")
     implementation("org.jetbrains.exposed:exposed-dao:$exposedVersion")
     runtimeOnly("org.jetbrains.exposed:exposed-jdbc:$exposedVersion")
+    implementation("io.github.humbleui:skija-linux:0.102.0")
 
     testImplementation("io.ktor:ktor-server-tests-jvm:$ktorVersion")
     testImplementation(kotlin("test-junit", kotlinVersion))
 }
 
-fun Project.getLocalProperty(key: String, file: String = "local.properties"): Any {
+fun Project.getLocalProperty(file: String = "local.properties"): Properties {
     val properties = Properties()
     val localProperties = File(file)
     if (localProperties.isFile) {
@@ -71,5 +73,5 @@ fun Project.getLocalProperty(key: String, file: String = "local.properties"): An
             properties.load(reader)
         }
     } else error("File from not found")
-    return properties.getProperty(key)
+    return properties
 }
