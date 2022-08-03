@@ -2,6 +2,7 @@ package icu.ketal.plugins.user
 
 import icu.ketal.dao.User
 import icu.ketal.data.ServiceError
+import icu.ketal.utils.DBUtils
 import icu.ketal.utils.logger
 import icu.ketal.utils.respondError
 import io.ktor.server.application.call
@@ -16,7 +17,7 @@ fun getUserInfo() {
     routing.post("cicool/user/getUserInfo") {
         kotlin.runCatching {
             val req = call.receive<UserInfoRequest>()
-            val user = transaction {
+            val user = transaction(DBUtils.db) {
                 User.findById(req.id)
             }
             val cookie = call.request.cookies["TOKEN"]

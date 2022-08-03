@@ -2,11 +2,14 @@ package icu.ketal
 
 import icu.ketal.plugins.configureRouting
 import icu.ketal.plugins.user.configureUserRouting
+import icu.ketal.plugins.word.configureWordRouting
 import icu.ketal.utils.DBUtils
 import icu.ketal.utils.PORT_DEV
 import icu.ketal.utils.logger
-import io.ktor.server.engine.*
-import io.ktor.server.netty.*
+import io.ktor.server.engine.applicationEngineEnvironment
+import io.ktor.server.engine.connector
+import io.ktor.server.engine.embeddedServer
+import io.ktor.server.netty.Netty
 
 fun main() {
     DBUtils.prepare()
@@ -21,6 +24,7 @@ fun main() {
         module {
             configureRouting()
             configureUserRouting()
+            configureWordRouting()
         }
     }
 
