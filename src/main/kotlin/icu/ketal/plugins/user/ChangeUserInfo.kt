@@ -33,7 +33,6 @@ fun changeUserInfo() {
     }
 }
 
-context(UserRouting)
 @Serializable
 data class ChangeUserInfoRequest(
     var id: Int = -1,

@@ -25,7 +25,6 @@ fun Application.configureUserRouting() {
     }
 }
 
-context(UserRouting)
 fun check(id: Int?, token: String?): ServiceError? {
     if (id == null || token == null) {
         return ServiceError.BAD_REQUEST

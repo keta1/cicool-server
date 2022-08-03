@@ -1,5 +1,6 @@
 package icu.ketal.utils
 
+import icu.ketal.table.LemmaDb
 import icu.ketal.table.UserDb
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
@@ -25,6 +26,8 @@ object DBUtils {
     init {
         transaction(wordDb) {
             addLogger(StdOutSqlLogger)
+
+            SchemaUtils.createMissingTablesAndColumns(LemmaDb)
         }
         transaction(db) {
             addLogger(StdOutSqlLogger)

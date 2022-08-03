@@ -61,13 +61,11 @@ fun login() {
     }
 }
 
-context(UserRouting)
 @Serializable
 class UserLoginRequest(
     var code: String = ""
 )
 
-context(UserRouting)
 @Serializable
 data class UserLoginResponse(
     val errcode: Int,

@@ -51,7 +51,6 @@ fun uploadAvatar() {
                     path.parent.createDirectories()
                     it.copyTo(path.outputStream())
                 }
-
                 path
             }
             transaction(DBUtils.db) {
@@ -89,7 +88,6 @@ fun uploadAvatar() {
     }
 }
 
-context(UserRouting)
 @Serializable
 data class GetAvatarRequest(
     var id: Int = -1

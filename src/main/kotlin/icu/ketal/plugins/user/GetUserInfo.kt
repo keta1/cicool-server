@@ -38,13 +38,11 @@ fun getUserInfo() {
     }
 }
 
-context(UserRouting)
 @Serializable
 data class UserInfoRequest(
-    var id: Int = -1
+    val id: Int = -1
 )
 
-context(UserRouting)
 @Serializable
 data class UserInfoResponse(
     val errcode: Int,

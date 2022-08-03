@@ -17,6 +17,10 @@ fun genSalt(length: Int): String = buildString {
     }
 }
 
+fun isTranslation(keyword: String): Boolean {
+    return keyword.contains(Regex("[\u4e00-\u9fa5]"))
+}
+
 suspend fun ApplicationCall.respondError(error: ServiceError) {
     this.respond(
         HttpStatusCode.fromValue(error.httpStatusCode),
