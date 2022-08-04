@@ -59,8 +59,9 @@ dependencies {
     implementation("org.jetbrains.exposed:exposed-core:$exposedVersion")
     implementation("org.jetbrains.exposed:exposed-dao:$exposedVersion")
     runtimeOnly("org.jetbrains.exposed:exposed-jdbc:$exposedVersion")
-    implementation("io.github.humbleui:skija-linux:0.102.0")
 
+    testImplementation("org.eclipse.jetty:jetty-client:11.0.11")
+    testImplementation("org.eclipse.jetty:jetty-http:11.0.11")
     testImplementation("io.ktor:ktor-server-tests-jvm:$ktorVersion")
     testImplementation(kotlin("test-junit", kotlinVersion))
 }
