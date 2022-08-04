@@ -2,13 +2,10 @@ package icu.ketal.plugins.word
 
 import icu.ketal.dao.Lemma
 import icu.ketal.dao.Word
-import icu.ketal.dao.WordAll
-import icu.ketal.dao.WordDao
-import icu.ketal.dao.wordAllTable
-import icu.ketal.dao.wordTable
 import icu.ketal.data.ServiceError
 import icu.ketal.plugins.user.check
 import icu.ketal.table.LemmaDb
+import icu.ketal.table.WordDb
 import icu.ketal.utils.DBUtils
 import icu.ketal.utils.isTranslation
 import icu.ketal.utils.logger
@@ -24,38 +21,35 @@ context(WordRouting)
 fun getSearchResult() {
     routing.post("cicool/word/getSearchResult") {
         kotlin.runCatching {
-            val req = call.receive<GetSearchResultReq>()
+            val (userId, keyword, getLemma, recordLimit, skip) = call.receive<GetSearchResultReq>()
             val cookie = call.request.cookies["TOKEN"]
-            check(req.id, cookie)?.let {
+            check(userId, cookie)?.let {
                 call.respondError(it)
                 return@runCatching
             }
-            val recordLimit = if (req.useBigDb) 30 else 20
-            val isTranslation = isTranslation(req.keyword)
-            val keyword = req.keyword
+            val isTranslation = isTranslation(keyword)
             logger.info("keyword:$keyword")
             if (!isTranslation && !keyword.contains(" ")) {
                 logger.info("don't have space")
                 // 如果没有空格，则查询单个
-                val stems = findStem(keyword).map { GetSearchResultRsq.SWord(it) }
+                val stems = if (getLemma) findStem(keyword).map { GetSearchResultRsq.SWord(it) } else emptyList()
                 // 使用sw字段进行前缀模糊查找
-                val words = findWords(
-                    "${req.keyword.lowercase()}%",
-                    req.useBigDb,
-                    recordLimit,
-                    req.skip
-                ).map { GetSearchResultRsq.SWord(it) }
+                val words = findWords("${keyword.lowercase()}%", recordLimit, skip)
+                    .sortedBy {
+                        it.word.contains(" ")
+                    }.map { GetSearchResultRsq.SWord(it) }
                 call.respond(GetSearchResultRsq(lemmaSearch = stems, directSearch = words))
             } else if (!isTranslation) {
                 // 有空格情况，不进行原型查找，将空格换为任意位数通配符进行匹配
                 logger.info("keyword:${keyword.lowercase().replace(" ", "%")}%")
                 val words = findWords(
                     "${keyword.lowercase().replace(" ", "%")}%",
-                    req.useBigDb,
                     recordLimit,
-                    req.skip
+                    skip
                 ).asSequence().sortedBy {
                     getIndexSum(keyword, it.word)
+                }.sortedBy {
+                    it.word.contains(" ")
                 }.map { GetSearchResultRsq.SWord(it) }.toList()
                 call.respond(GetSearchResultRsq(directSearch = words))
             } else {
@@ -63,9 +57,8 @@ fun getSearchResult() {
                 logger.info("中文搜索")
                 val words = findTrans(
                     "${keyword.lowercase().replace(" ", "%")}%",
-                    req.useBigDb,
                     recordLimit,
-                    req.skip
+                    skip
                 ).asSequence().sortedBy {
                     it.word.contains(" ")
                 }.map { GetSearchResultRsq.SWord(it) }.toList()
@@ -79,13 +72,13 @@ fun getSearchResult() {
     }
 }
 
-private fun findStem(keyword: String): List<WordDao> {
+private fun findStem(keyword: String): List<Word> {
     logger.info("findStem:$keyword")
     return transaction(DBUtils.wordDb) {
         val stem = Lemma.find { LemmaDb.word eq keyword }
         logger.info("stem count: " + stem.count())
         val lemmaSearch = stem.mapNotNull {
-            Word.find { wordTable.word eq it.stem }.firstOrNull()
+            Word.find { WordDb.word eq it.stem }.firstOrNull()
         }
         logger.info("lemmaSearch: $lemmaSearch")
         lemmaSearch
@@ -94,30 +87,24 @@ private fun findStem(keyword: String): List<WordDao> {
 
 private fun findWords(
     keyword: String,
-    useBigDb: Boolean = false,
     recordLimit: Int = 20,
     skip: Long = 0
-): List<WordDao> {
-    val table = if (useBigDb) WordAll else Word
-    val column = if (useBigDb) wordAllTable.sw else wordTable.sw
+): List<Word> {
     return transaction(DBUtils.wordDb) {
-        table.find {
-            column like "${keyword.lowercase()}%"
+        Word.find {
+            WordDb.sw like keyword
         }.limit(recordLimit, skip).toList()
     }
 }
 
 private fun findTrans(
     keyword: String,
-    useBigDb: Boolean = false,
     recordLimit: Int = 20,
     skip: Long = 0
-): List<WordDao> {
-    val table = if (useBigDb) WordAll else Word
-    val column = if (useBigDb) wordAllTable.translation else wordTable.translation
+): List<Word> {
     return transaction(DBUtils.wordDb) {
-        table.find {
-            column like "%${keyword.lowercase()}%"
+        Word.find {
+            WordDb.translation like "%${keyword.lowercase()}%"
         }.limit(recordLimit, skip).toList()
     }
 }
@@ -134,10 +121,10 @@ private fun getIndexSum(keyword: String, word: String): Int {
 
 @Serializable
 data class GetSearchResultReq(
-    val id: Int,
+    val userId: Int,
     val keyword: String,
-    val useBigDb: Boolean = false,
     val getLemma: Boolean = true,
+    val recordLimit: Int = 20,
     val skip: Long = 0
 )
 
@@ -154,7 +141,7 @@ data class GetSearchResultRsq(
         val word: String,
         val translation: String?
     ) {
-        constructor(words: WordDao) : this(
+        constructor(words: Word) : this(
             words.id.value,
             words.word,
             words.translation
