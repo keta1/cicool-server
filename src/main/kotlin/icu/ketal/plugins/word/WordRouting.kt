@@ -14,6 +14,7 @@ fun Application.configureWordRouting() {
             override val routing = this@routing
         }) {
             getSearchResult()
+            getWordDetail()
         }
     }
 }
