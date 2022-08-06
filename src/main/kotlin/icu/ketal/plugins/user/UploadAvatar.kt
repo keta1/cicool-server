@@ -18,6 +18,7 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import java.util.*
 import kotlin.io.path.Path
 import kotlin.io.path.createDirectories
+import kotlin.io.path.deleteIfExists
 import kotlin.io.path.div
 import kotlin.io.path.exists
 import kotlin.io.path.outputStream
@@ -52,9 +53,14 @@ fun uploadAvatar() {
                 }
                 path
             }
-            transaction {
+            val avatarPic = transaction {
                 val user = User.findById(id!!)!!
+                val avatarPic = user.avatarPic
                 user.avatarPic = path.toString()
+                Path(avatarPic)
+            }
+            withContext(Dispatchers.IO) {
+                avatarPic.deleteIfExists()
             }
             call.respondError(ServiceError.OK)
         }.onFailure {
