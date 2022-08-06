@@ -6,7 +6,6 @@ import icu.ketal.data.ServiceError
 import icu.ketal.plugins.user.check
 import icu.ketal.table.LemmaDb
 import icu.ketal.table.WordDb
-import icu.ketal.utils.DBUtils
 import icu.ketal.utils.isTranslation
 import icu.ketal.utils.logger
 import icu.ketal.utils.respondError
@@ -74,7 +73,7 @@ fun getSearchResult() {
 
 private fun findStem(keyword: String): List<Word> {
     logger.info("findStem:$keyword")
-    return transaction(DBUtils.wordDb) {
+    return transaction {
         val stem = Lemma.find { LemmaDb.word eq keyword }
         logger.info("stem count: " + stem.count())
         val lemmaSearch = stem.mapNotNull {
@@ -90,7 +89,7 @@ private fun findWords(
     recordLimit: Int = 20,
     skip: Long = 0
 ): List<Word> {
-    return transaction(DBUtils.wordDb) {
+    return transaction {
         Word.find {
             WordDb.sw like keyword
         }.limit(recordLimit, skip).toList()
@@ -102,7 +101,7 @@ private fun findTrans(
     recordLimit: Int = 20,
     skip: Long = 0
 ): List<Word> {
-    return transaction(DBUtils.wordDb) {
+    return transaction {
         Word.find {
             WordDb.translation like "%${keyword.lowercase()}%"
         }.limit(recordLimit, skip).toList()
