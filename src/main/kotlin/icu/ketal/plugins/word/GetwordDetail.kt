@@ -6,7 +6,6 @@ import icu.ketal.dao.WordInBook
 import icu.ketal.data.ServiceError
 import icu.ketal.plugins.user.check
 import icu.ketal.table.WordInBookDb
-import icu.ketal.utils.DBUtils
 import icu.ketal.utils.logger
 import icu.ketal.utils.respondError
 import io.ktor.server.application.call
@@ -26,7 +25,7 @@ fun getWordDetail() {
                 call.respondError(it)
                 return@runCatching
             }
-            val rsp = transaction(DBUtils.wordDb) {
+            val rsp = transaction {
                 val word = Word.findById(wordId)!!
                 // TODO notebook
                 val books = WordInBook.find { WordInBookDb.wordId eq wordId }.mapNotNull {

@@ -2,7 +2,6 @@ package icu.ketal.plugins.user
 
 import icu.ketal.dao.User
 import icu.ketal.data.ServiceError
-import icu.ketal.utils.DBUtils
 import icu.ketal.utils.logger
 import icu.ketal.utils.respondError
 import io.ktor.server.application.call
@@ -21,7 +20,7 @@ fun changeUserInfo() {
                 call.respondError(it)
                 return@runCatching
             }
-            transaction(DBUtils.db) {
+            transaction {
                 val user = User.findById(req.id)
                 req.nickName?.let { user!!.nickName = it }
             }

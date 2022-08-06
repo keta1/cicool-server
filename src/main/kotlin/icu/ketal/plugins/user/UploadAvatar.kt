@@ -2,7 +2,6 @@ package icu.ketal.plugins.user
 
 import icu.ketal.dao.User
 import icu.ketal.data.ServiceError
-import icu.ketal.utils.DBUtils
 import icu.ketal.utils.FILE_SIZE_LIMIT
 import icu.ketal.utils.FILE_STORE_PATH
 import icu.ketal.utils.logger
@@ -53,7 +52,7 @@ fun uploadAvatar() {
                 }
                 path
             }
-            transaction(DBUtils.db) {
+            transaction {
                 val user = User.findById(id!!)!!
                 user.avatarPic = path.toString()
             }

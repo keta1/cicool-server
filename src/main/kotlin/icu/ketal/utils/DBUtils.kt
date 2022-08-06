@@ -10,12 +10,7 @@ import org.jetbrains.exposed.sql.transactions.transaction
 
 object DBUtils {
 
-    val wordDb: Database = Database.connect(
-        "jdbc:sqlite:word.db",
-        "org.sqlite.JDBC"
-    )
-
-    val db: Database = Database.connect(
+    private val db: Database = Database.connect(
         "jdbc:sqlite:cicool.db",
         "org.sqlite.JDBC"
     )
@@ -24,15 +19,10 @@ object DBUtils {
     fun prepare() = Unit
 
     init {
-        transaction(wordDb) {
-            addLogger(StdOutSqlLogger)
-
-            SchemaUtils.createMissingTablesAndColumns(LemmaDb)
-        }
         transaction(db) {
             addLogger(StdOutSqlLogger)
 
-            SchemaUtils.createMissingTablesAndColumns(UserDb)
+            SchemaUtils.createMissingTablesAndColumns(UserDb, LemmaDb)
         }
     }
 }

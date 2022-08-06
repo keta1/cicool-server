@@ -2,7 +2,6 @@ package icu.ketal.plugins.user
 
 import icu.ketal.dao.User
 import icu.ketal.data.ServiceError
-import icu.ketal.utils.DBUtils
 import io.ktor.server.application.Application
 import io.ktor.server.routing.Routing
 import io.ktor.server.routing.routing
@@ -29,7 +28,7 @@ fun check(id: Int?, token: String?): ServiceError? {
     if (id == null || token == null) {
         return ServiceError.BAD_REQUEST
     }
-    val user = transaction(DBUtils.db) {
+    val user = transaction {
         User.findById(id)
     }
     if (user == null) {

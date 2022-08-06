@@ -3,7 +3,6 @@ package icu.ketal.plugins.user
 import icu.ketal.dao.User
 import icu.ketal.data.ServiceError
 import icu.ketal.table.UserDb
-import icu.ketal.utils.DBUtils
 import icu.ketal.utils.TimeUtil
 import icu.ketal.utils.WechatUtils
 import icu.ketal.utils.genSalt
@@ -32,7 +31,7 @@ fun login() {
                 )
                 return@runCatching
             }
-            val user = transaction(DBUtils.db) {
+            val user = transaction {
                 val user = User.find { UserDb.openId eq session.openId }.firstOrNull()
                 if (user == null) {
                     User.new {
