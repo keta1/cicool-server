@@ -58,6 +58,7 @@ dependencies {
     runtimeOnly("org.xerial:sqlite-jdbc:3.36.0.3")
     implementation("org.jetbrains.exposed:exposed-core:$exposedVersion")
     implementation("org.jetbrains.exposed:exposed-dao:$exposedVersion")
+    implementation("org.jetbrains.exposed:exposed-kotlin-datetime:$exposedVersion")
     runtimeOnly("org.jetbrains.exposed:exposed-jdbc:$exposedVersion")
 
     testImplementation("org.eclipse.jetty:jetty-client:11.0.11")

@@ -15,6 +15,7 @@ fun Application.configureWordRouting() {
         }) {
             getSearchResult()
             getWordDetail()
+            getBasicLearningData()
         }
     }
 }

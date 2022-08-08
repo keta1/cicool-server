@@ -1,8 +1,15 @@
 package icu.ketal.utils
 
-import java.time.LocalDateTime
-import java.time.ZoneOffset
+import kotlinx.datetime.Clock
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
+import java.time.LocalDateTime as jtLocalDateTime
+import java.time.ZoneOffset as jtZoneOffset
 
 object TimeUtil {
-    val now = LocalDateTime.now().toEpochSecond(ZoneOffset.of("+8"))
+    val now = jtLocalDateTime.now().toEpochSecond(jtZoneOffset.of("+8"))
 }
+
+private val timeZone = TimeZone.currentSystemDefault()
+
+val Clock.now get() = this.now().toLocalDateTime(timeZone)
