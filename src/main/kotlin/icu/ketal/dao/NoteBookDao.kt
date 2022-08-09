@@ -8,7 +8,7 @@ import org.jetbrains.exposed.dao.id.EntityID
 class NoteBook(id: EntityID<Int>) : IntEntity(id) {
     companion object : IntEntityClass<NoteBook>(NoteBookDb)
 
-    val userId by NoteBookDb.userId
-    val wordId by NoteBookDb.wordId
-    val creatTime by NoteBookDb.creatTime
+    var userId by NoteBookDb.userId
+    var wordId by NoteBookDb.wordId
+    var creatTime by NoteBookDb.creatTime
 }
