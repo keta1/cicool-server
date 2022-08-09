@@ -1,10 +1,12 @@
 package icu.ketal.plugins.word
 
+import icu.ketal.dao.NoteBook
 import icu.ketal.dao.Word
 import icu.ketal.dao.WordBook
 import icu.ketal.dao.WordInBook
 import icu.ketal.data.ServiceError
 import icu.ketal.plugins.user.check
+import icu.ketal.table.NoteBookDb
 import icu.ketal.table.WordInBookDb
 import icu.ketal.utils.logger
 import icu.ketal.utils.respondError
@@ -12,6 +14,7 @@ import io.ktor.server.application.call
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import io.ktor.server.routing.post
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import org.jetbrains.exposed.sql.transactions.transaction
 
@@ -27,12 +30,12 @@ fun getWordDetail() {
             }
             val rsp = transaction {
                 val word = Word.findById(wordId)!!
-                // TODO notebook
+                val inNoteBook = NoteBook.find { NoteBookDb.wordId eq wordId }.any()
                 val books = WordInBook.find { WordInBookDb.wordId eq wordId }.mapNotNull {
                     WordBook.findById(it.bookId)
                 }.map { GetWordDetailRsp.SWordBook(it) }
                 GetWordDetailRsp(
-                    GetWordDetailRsp.SWord(word), books
+                    GetWordDetailRsp.SWord(word), inNoteBook, books
                 )
             }
             call.respond(rsp)
@@ -52,6 +55,8 @@ data class GetWordDetailReq(
 @Serializable
 data class GetWordDetailRsp(
     val word: SWord,
+    @SerialName("in_notebook")
+    val inNoteBook: Boolean,
     val tagList: List<SWordBook> = emptyList()
 ) {
     @Serializable
