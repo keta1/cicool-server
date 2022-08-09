@@ -23,7 +23,7 @@ fun getBasicLearningData() {
     routing.post("cicool/word/getBasicLearningData") {
         kotlin.runCatching {
             val (userId, wordBookId) = call.receive<GetBasicLearningDataReq>()
-            val (needToLearn, needToReview) = transaction {
+            val rsp = transaction {
                 val learnData = LearnRecord.find {
                     LearnRecordDb.userId.eq(userId) and
                             LearnRecordDb.wordBookId.eq(wordBookId)
@@ -31,14 +31,12 @@ fun getBasicLearningData() {
                 val total = WordInBook.find { WordInBookDb.bookId eq wordBookId }.count().toInt()
                 val learned = learnData.count().toInt()
                 val needToReview = learnData.count { !it.master && it.nextToLearn <= Clock.System.now }
-                Pair(total - learned, needToReview)
-            }
-            call.respond(
                 GetBasicLearningDataRsq(
-                    needToLearn = needToLearn,
+                    needToLearn = total - learned,
                     needToReview = needToReview
                 )
-            )
+            }
+            call.respond(rsp)
         }.onFailure {
             logger.warn(it.stackTraceToString())
             call.respondError(ServiceError.INTERNAL_SERVER_ERROR)
