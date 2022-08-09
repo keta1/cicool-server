@@ -63,6 +63,7 @@ data class GetWordDetailRsp(
     data class SWord(
         val id: Int,
         val word: String,
+        val translation: String?,
         val phonetic: String?,
         val definition: String?,
         val pos: String?,
@@ -74,6 +75,7 @@ data class GetWordDetailRsp(
         constructor(word: Word) : this(
             word.id.value,
             word.word,
+            word.translation,
             word.phonetic,
             word.definition,
             word.pos,
