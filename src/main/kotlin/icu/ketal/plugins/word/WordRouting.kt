@@ -19,6 +19,7 @@ fun Application.configureWordRouting() {
             getLearningData()
             getReviewData()
             toggleAddToNB()
+            addLearningRecord()
         }
     }
 }

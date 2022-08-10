@@ -10,6 +10,6 @@ object TimeUtil {
     val now = jtLocalDateTime.now().toEpochSecond(jtZoneOffset.of("+8"))
 }
 
-private val timeZone = TimeZone.currentSystemDefault()
+val timeZone = TimeZone.currentSystemDefault()
 
 val Clock.now get() = this.now().toLocalDateTime(timeZone)
