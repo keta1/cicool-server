@@ -30,7 +30,7 @@ fun getBasicLearningData() {
                 }
                 val total = WordInBook.find { WordInBookDb.bookId eq wordBookId }.count().toInt()
                 val learned = learnData.count().toInt()
-                val needToReview = learnData.count { !it.master && it.nextToLearn <= Clock.System.now }
+                val needToReview = learnData.count { it.completed && !it.master && it.nextToLearn <= Clock.System.now }
                 GetBasicLearningDataRsq(
                     needToLearn = total - learned,
                     needToReview = needToReview

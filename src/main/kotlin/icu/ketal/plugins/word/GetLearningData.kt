@@ -14,6 +14,7 @@ import io.ktor.server.application.call
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import io.ktor.server.routing.post
+import kotlinx.datetime.LocalDateTime
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import org.jetbrains.exposed.sql.Random
@@ -30,7 +31,8 @@ fun getLearningData() {
             val rsp = transaction {
                 val learnData = LearnRecord.find {
                     LearnRecordDb.userId.eq(userId) and
-                            LearnRecordDb.wordBookId.eq(wordBookId)
+                            LearnRecordDb.wordBookId.eq(wordBookId) and
+                            LearnRecordDb.completed.eq(false)
                 }.toList()
                 val noteBook = NoteBook.find { NoteBookDb.userId eq userId }
                 val words = WordInBook.find { WordInBookDb.bookId eq wordBookId }
@@ -41,12 +43,13 @@ fun getLearningData() {
                     .asSequence()
                     .map { Word.findById(it.wordId)!! }
                     .mapIndexed { index, word ->
+                        val learningRecord = learnData.firstOrNull { it.wordId == word.id.value }
+                            ?.let { GetLearningDataRsq.LearningRecord(it) }
                         GetLearningDataRsq.SWord(
                             index,
                             word,
                             noteBook.any { it.wordId == word.id.value },
-                            // TODO: learning_record
-                            "TODO()",
+                            learningRecord,
                             genSample(wordBookId, sampleSize)
                         )
                     }.toList()
@@ -95,7 +98,6 @@ data class GetLearningDataRsq(
     data class Data(
         @SerialName("word_list")
         val wordList: List<SWord>,
-        @SerialName("sample_list")
         val wordIdList: List<Int>
     )
 
@@ -107,18 +109,35 @@ data class GetLearningDataRsq(
         val translation: String?,
         val phonetic: String?,
         val in_notebook: Boolean,
-        val learning_record: String,
+        val learningRecord: LearningRecord?,
         val sampleList: List<Sample>
     ) {
-        constructor(id: Int, word: Word, inNotebook: Boolean, learning_record: String, sampleList: List<Sample>) : this(
+        constructor(
+            id: Int,
+            word: Word,
+            inNotebook: Boolean,
+            learningRecord: LearningRecord?,
+            sampleList: List<Sample>
+        ) : this(
             id,
             word.id.value,
             word.word,
             word.translation,
             word.phonetic,
             inNotebook,
-            learning_record,
+            learningRecord,
             sampleList
+        )
+    }
+
+    @Serializable
+    data class LearningRecord(
+        val repeatTimes: Int,
+        val learnTime: LocalDateTime
+    ) {
+        constructor(learnRecord: LearnRecord) : this(
+            learnRecord.repeatTimes,
+            learnRecord.lastToLearn
         )
     }
 

@@ -11,6 +11,13 @@ class LearnRecord(id: EntityID<Int>) : IntEntity(id) {
     val userId by LearnRecordDb.userId
     val wordBookId by LearnRecordDb.wordBookId
     val wordId by LearnRecordDb.wordId
-    val master by LearnRecordDb.master
+    val EF by LearnRecordDb.EF
+    val NOI by LearnRecordDb.NOI
+    val lastToLearn by LearnRecordDb.lastToLearn
     val nextToLearn by LearnRecordDb.nextToLearn
+    val next_n by LearnRecordDb.next_n
+    val completed by LearnRecordDb.completed
+    val repeatTimes by LearnRecordDb.repeatTimes
+    val master by LearnRecordDb.master
+    val createTime by LearnRecordDb.createTime
 }
