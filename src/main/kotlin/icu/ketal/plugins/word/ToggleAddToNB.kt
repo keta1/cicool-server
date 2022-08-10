@@ -4,11 +4,13 @@ import icu.ketal.dao.NoteBook
 import icu.ketal.data.ServiceError
 import icu.ketal.table.NoteBookDb
 import icu.ketal.utils.logger
+import icu.ketal.utils.now
 import icu.ketal.utils.respondError
 import io.ktor.server.application.call
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import io.ktor.server.routing.post
+import kotlinx.datetime.Clock
 import kotlinx.serialization.Serializable
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -23,6 +25,7 @@ fun toggleAddToNB() {
                     NoteBook.new {
                         this.userId = userId
                         this.wordId = wordId
+                        this.creatTime = Clock.System.now
                     }
                 } else {
                     // drop note
