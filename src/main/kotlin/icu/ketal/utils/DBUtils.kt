@@ -1,5 +1,6 @@
 package icu.ketal.utils
 
+import icu.ketal.table.LearnRecordDb
 import icu.ketal.table.LemmaDb
 import icu.ketal.table.UserDb
 import org.jetbrains.exposed.sql.Database
@@ -15,14 +16,17 @@ object DBUtils {
         "org.sqlite.JDBC"
     )
 
-
     fun prepare() = Unit
 
     init {
         transaction(db) {
             addLogger(StdOutSqlLogger)
 
-            SchemaUtils.createMissingTablesAndColumns(UserDb, LemmaDb)
+            SchemaUtils.createMissingTablesAndColumns(
+                UserDb,
+                LemmaDb,
+                LearnRecordDb
+            )
         }
     }
 }

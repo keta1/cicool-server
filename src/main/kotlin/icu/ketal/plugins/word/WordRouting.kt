@@ -17,6 +17,7 @@ fun Application.configureWordRouting() {
             getWordDetail()
             getBasicLearningData()
             getLearningData()
+            getReviewData()
             toggleAddToNB()
         }
     }
