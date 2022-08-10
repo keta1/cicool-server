@@ -1,7 +1,9 @@
 package icu.ketal.plugins.word
 
+import icu.ketal.dao.DailySum
 import icu.ketal.dao.LearnRecord
 import icu.ketal.data.ServiceError
+import icu.ketal.table.DailySumDb
 import icu.ketal.utils.logger
 import icu.ketal.utils.now
 import icu.ketal.utils.respondError
@@ -19,6 +21,7 @@ import kotlinx.datetime.toLocalDateTime
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import org.jetbrains.exposed.sql.transactions.transaction
+import kotlin.time.Duration
 
 context(WordRouting)
 fun addLearningRecord() {
@@ -41,6 +44,18 @@ fun addLearningRecord() {
                         this.master = it.master
                         this.createTime = it.createTime
                     }
+                }
+                val sum = DailySum.find { DailySumDb.date eq Clock.System.now.date }.firstOrNull()
+                if (sum == null) {
+                    DailySum.new {
+                        this.userId = userId
+                        this.date = Clock.System.now.date
+                        this.learn = 0
+                        this.review = record.size
+                        this.learnTime = Duration.ZERO
+                    }
+                } else {
+                    sum.review += record.size
                 }
             }
             call.respond(ServiceError.OK)

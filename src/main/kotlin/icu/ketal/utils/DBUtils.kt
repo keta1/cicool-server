@@ -1,5 +1,6 @@
 package icu.ketal.utils
 
+import icu.ketal.table.DailySumDb
 import icu.ketal.table.LearnRecordDb
 import icu.ketal.table.LemmaDb
 import icu.ketal.table.UserDb
@@ -25,7 +26,8 @@ object DBUtils {
             SchemaUtils.createMissingTablesAndColumns(
                 UserDb,
                 LemmaDb,
-                LearnRecordDb
+                LearnRecordDb,
+                DailySumDb
             )
         }
     }
