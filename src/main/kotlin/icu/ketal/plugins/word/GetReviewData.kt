@@ -118,12 +118,20 @@ data class GetReviewDataRsq(
 
     @Serializable
     data class LearningRecord(
-        val repeatTimes: Int,
-        val learnTime: LocalDateTime
+        val EF: String,
+        val NOI: Int,
+        val lastToLearn: LocalDateTime,
+        val nextToLearn: LocalDateTime,
+        val master: Boolean,
+        val next_n: Int
     ) {
         constructor(learnRecord: LearnRecord) : this(
-            learnRecord.repeatTimes,
-            learnRecord.lastToLearn
+            learnRecord.EF,
+            learnRecord.NOI,
+            learnRecord.lastToLearn,
+            learnRecord.nextToLearn,
+            learnRecord.master,
+            learnRecord.next_n
         )
     }
 
