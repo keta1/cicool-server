@@ -20,6 +20,7 @@ fun Application.configureUserRouting() {
             getUserInfo()
             changeUserInfo()
             uploadAvatar()
+            changeWordBook()
         }
     }
 }
