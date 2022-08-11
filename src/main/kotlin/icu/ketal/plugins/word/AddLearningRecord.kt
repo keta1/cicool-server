@@ -50,12 +50,12 @@ fun addLearningRecord() {
                     DailySum.new {
                         this.userId = userId
                         this.date = Clock.System.now.date
-                        this.learn = 0
-                        this.review = record.size
+                        this.learn = record.size
+                        this.review = 0
                         this.learnTime = Duration.ZERO
                     }
                 } else {
-                    sum.review += record.size
+                    sum.learn += record.size
                 }
             }
             call.respond(ServiceError.OK)
