@@ -30,19 +30,21 @@ fun getLearningData() {
             val sampleSize = if (sample) 5 else 0
             val rsp = transaction {
                 val learnData = LearnRecord.find {
-                    LearnRecordDb.userId.eq(userId) and
-                            LearnRecordDb.completed.eq(false)
+                    LearnRecordDb.userId.eq(userId)
                 }.toList()
-                val noteBook = NoteBook.find { NoteBookDb.userId eq userId }
-                val words = WordInBook.find { WordInBookDb.bookId eq wordBookId }
+                val noteBook = NoteBook.find { NoteBookDb.userId eq userId }.toList()
+                val words = WordInBook.find {
+                    WordInBookDb.bookId.eq(wordBookId) and
+                            // filter words that have been learned
+                            WordInBookDb.wordId.notInList(learnData.filter { it.completed }.map { it.wordId })
+                }
                     .orderBy(WordInBookDb.bookId to SortOrder.DESC)
                     .limit(groupSize)
-                    // filter words that have been learned
-                    .filter { word -> !learnData.any { data -> data.wordId == word.wordId } }
                     .asSequence()
                     .map { Word.findById(it.wordId)!! }
                     .mapIndexed { index, word ->
-                        val learningRecord = learnData.firstOrNull { it.wordId == word.id.value }
+                        val learningRecord = learnData.filter { !it.completed }
+                            .firstOrNull { it.wordId == word.id.value }
                             ?.let { GetLearningDataRsq.LearningRecord(it) }
                         GetLearningDataRsq.SWord(
                             index,
