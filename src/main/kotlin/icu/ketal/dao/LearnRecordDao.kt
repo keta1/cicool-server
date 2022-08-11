@@ -9,7 +9,6 @@ class LearnRecord(id: EntityID<Int>) : IntEntity(id) {
     companion object : IntEntityClass<LearnRecord>(LearnRecordDb)
 
     var userId by LearnRecordDb.userId
-    var wordBookId by LearnRecordDb.wordBookId
     var wordId by LearnRecordDb.wordId
     var EF by LearnRecordDb.EF
     var NOI by LearnRecordDb.NOI

@@ -15,7 +15,6 @@ import io.ktor.server.routing.post
 import kotlinx.datetime.Clock
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.transactions.transaction
 
 context(WordRouting)
@@ -24,12 +23,13 @@ fun getBasicLearningData() {
         kotlin.runCatching {
             val (userId, wordBookId) = call.receive<GetBasicLearningDataReq>()
             val rsp = transaction {
+                val words = WordInBook.find { WordInBookDb.bookId eq wordBookId }.asSequence()
                 val learnData = LearnRecord.find {
-                    LearnRecordDb.userId.eq(userId) and
-                            LearnRecordDb.wordBookId.eq(wordBookId)
-                }
-                val total = WordInBook.find { WordInBookDb.bookId eq wordBookId }.count().toInt()
-                val learned = learnData.count().toInt()
+                    LearnRecordDb.userId.eq(userId)
+                }.asSequence()
+                    .filter { words.any { word -> word.wordId == it.wordId } }
+                val total = words.count()
+                val learned = learnData.count()
                 val needToReview = learnData.count { it.completed && !it.master && it.nextToLearn <= Clock.System.now }
                 GetBasicLearningDataRsq(
                     needToLearn = total - learned,

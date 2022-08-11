@@ -31,7 +31,6 @@ fun getLearningData() {
             val rsp = transaction {
                 val learnData = LearnRecord.find {
                     LearnRecordDb.userId.eq(userId) and
-                            LearnRecordDb.wordBookId.eq(wordBookId) and
                             LearnRecordDb.completed.eq(false)
                 }.toList()
                 val noteBook = NoteBook.find { NoteBookDb.userId eq userId }

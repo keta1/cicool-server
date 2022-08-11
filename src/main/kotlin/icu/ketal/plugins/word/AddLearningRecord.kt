@@ -27,12 +27,11 @@ context(WordRouting)
 fun addLearningRecord() {
     routing.post("cicool/word/addLearningRecord") {
         kotlin.runCatching {
-            val (userId, wordBookId, record) = call.receive<AddLearningRecordReq>()
+            val (userId, record) = call.receive<AddLearningRecordReq>()
             transaction {
                 record.forEach {
                     LearnRecord.new {
                         this.userId = userId
-                        this.wordBookId = wordBookId
                         this.wordId = it.wordId
                         this.EF = it.EF
                         this.NOI = it.NOI
@@ -70,8 +69,6 @@ fun addLearningRecord() {
 data class AddLearningRecordReq(
     @SerialName("user_id")
     val userId: Int,
-    @SerialName("wd_bk_id")
-    val wordBookId: Int,
     val record: List<LearningRecord>,
 ) {
     @Serializable

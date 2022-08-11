@@ -31,14 +31,15 @@ fun getReviewData() {
             val (userId, wordBookId, groupSize, sample) = call.receive<GetReviewDataReq>()
             val sampleSize = if (sample) 5 else 0
             val rsp = transaction {
+                val wordInBook = WordInBook.find { WordInBookDb.bookId eq wordBookId }.asSequence()
                 val learnData = LearnRecord.find {
                     LearnRecordDb.userId.eq(userId) and
-                            LearnRecordDb.wordBookId.eq(wordBookId) and
                             LearnRecordDb.nextToLearn.lessEq(Clock.System.now)
                 }.orderBy(LearnRecordDb.nextToLearn to SortOrder.DESC)
                     .limit(groupSize).asSequence()
                 val noteBook = NoteBook.find { NoteBookDb.userId eq userId }
                 val words = learnData.map { Word.findById(it.wordId)!! }
+                    .filter { wordInBook.any { word -> word.wordId == it.id.value } }
                     .mapIndexed { index, word ->
                         GetReviewDataRsq.SWord(
                             index,
