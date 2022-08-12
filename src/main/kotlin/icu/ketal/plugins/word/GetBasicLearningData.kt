@@ -6,7 +6,6 @@ import icu.ketal.data.ServiceError
 import icu.ketal.table.LearnRecordDb
 import icu.ketal.table.WordInBookDb
 import icu.ketal.utils.logger
-import icu.ketal.utils.now
 import icu.ketal.utils.respondError
 import io.ktor.server.application.call
 import io.ktor.server.request.receive
@@ -30,7 +29,8 @@ fun getBasicLearningData() {
                     .filter { words.any { word -> word.wordId == it.wordId } }
                 val total = words.count()
                 val learned = learnData.count()
-                val needToReview = learnData.count { it.completed && !it.master && it.nextToLearn <= Clock.System.now }
+                val needToReview =
+                    learnData.count { it.completed && !it.master && it.nextToLearn <= Clock.System.now() }
                 GetBasicLearningDataRsq(
                     needToLearn = total - learned,
                     needToReview = needToReview

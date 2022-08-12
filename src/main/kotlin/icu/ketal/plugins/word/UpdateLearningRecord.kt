@@ -18,7 +18,7 @@ import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import io.ktor.server.routing.post
 import kotlinx.datetime.Clock
-import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.Instant
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import org.jetbrains.exposed.sql.and
@@ -82,8 +82,8 @@ data class UpdateLearningRecordReq(
         val quality: Int,
         val NOI: Int,
         val next_n: Int,
-        val last_l: LocalDateTime,
-        val next_l: LocalDateTime? = null,
+        val last_l: Instant,
+        val next_l: Instant? = null,
         val master: Boolean
     )
 }

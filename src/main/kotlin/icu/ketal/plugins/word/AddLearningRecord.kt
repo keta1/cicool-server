@@ -14,10 +14,8 @@ import io.ktor.server.response.respond
 import io.ktor.server.routing.post
 import kotlinx.datetime.Clock
 import kotlinx.datetime.DateTimeUnit.Companion.DAY
-import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.Instant
 import kotlinx.datetime.plus
-import kotlinx.datetime.toInstant
-import kotlinx.datetime.toLocalDateTime
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -74,15 +72,14 @@ data class AddLearningRecordReq(
     @Serializable
     data class LearningRecord(
         val wordId: Int,
-        val lastToLearn: LocalDateTime = Clock.System.now,
-        val nextToLearn: LocalDateTime = lastToLearn.toInstant(timeZone)
-            .plus(1, DAY, timeZone).toLocalDateTime(timeZone),
+        val lastToLearn: Instant = Clock.System.now(),
+        val nextToLearn: Instant = lastToLearn.plus(1, DAY, timeZone),
         val EF: String = "2.5",
         val NOI: Int = 1,
         val next_n: Int = 0,
         val completed: Boolean = false,
         val repeatTimes: Int = 0,
         val master: Boolean = false,
-        val createTime: LocalDateTime = lastToLearn
+        val createTime: Instant = lastToLearn
     )
 }

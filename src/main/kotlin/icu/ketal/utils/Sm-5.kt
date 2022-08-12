@@ -6,7 +6,6 @@ import kotlinx.datetime.Clock
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.plus
 import kotlinx.datetime.toInstant
-import kotlinx.datetime.toLocalDateTime
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
@@ -115,7 +114,7 @@ object `Sm-5` {
         var (word_id, _EF, quality, last_NOI, next_n, last_l, _, master) = record
         if (master) return OF to record
         val now = Clock.System.now.toInstant(timeZone)
-        var last_i = (now - last_l.toInstant(timeZone)).inWholeDays.toInt()
+        var last_i = (now - last_l).inWholeDays.toInt()
 
         val EF = "%.1f".format(
             max(1.3, min(2.8, _EF.toFloat() + (0.1 - (5 - quality) * (0.08 + (5 - quality) * 0.02))))
@@ -156,9 +155,8 @@ object `Sm-5` {
             NOI
         }
 
-        last_l = Clock.System.now
-        val next_l = last_l.toInstant(timeZone)
-            .plus(NOI, DateTimeUnit.DAY, timeZone).toLocalDateTime(timeZone)
+        last_l = Clock.System.now()
+        val next_l = last_l.plus(NOI, DateTimeUnit.DAY, timeZone)
         return OF to record(
             word_id, EF, quality, NOI, next_n, last_l, next_l, master
         )

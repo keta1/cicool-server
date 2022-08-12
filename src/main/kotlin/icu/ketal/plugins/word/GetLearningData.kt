@@ -14,7 +14,7 @@ import io.ktor.server.application.call
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import io.ktor.server.routing.post
-import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.Instant
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import org.jetbrains.exposed.sql.Random
@@ -134,7 +134,7 @@ data class GetLearningDataRsq(
     @Serializable
     data class LearningRecord(
         val repeatTimes: Int,
-        val learnTime: LocalDateTime
+        val learnTime: Instant
     ) {
         constructor(learnRecord: LearnRecord) : this(
             learnRecord.repeatTimes,

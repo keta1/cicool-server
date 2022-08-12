@@ -9,14 +9,13 @@ import icu.ketal.table.LearnRecordDb
 import icu.ketal.table.NoteBookDb
 import icu.ketal.table.WordInBookDb
 import icu.ketal.utils.logger
-import icu.ketal.utils.now
 import icu.ketal.utils.respondError
 import io.ktor.server.application.call
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import io.ktor.server.routing.post
 import kotlinx.datetime.Clock
-import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.Instant
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import org.jetbrains.exposed.sql.Random
@@ -31,10 +30,10 @@ fun getReviewData() {
             val (userId, wordBookId, groupSize, sample) = call.receive<GetReviewDataReq>()
             val sampleSize = if (sample) 5 else 0
             val rsp = transaction {
-                val wordInBook = WordInBook.find { WordInBookDb.bookId eq wordBookId }.asSequence()
+                val wordInBook = WordInBook.find { WordInBookDb.bookId eq wordBookId }.toList()
                 val learnData = LearnRecord.find {
                     LearnRecordDb.userId.eq(userId) and
-                            LearnRecordDb.nextToLearn.lessEq(Clock.System.now)
+                            LearnRecordDb.nextToLearn.lessEq(Clock.System.now())
                 }.orderBy(LearnRecordDb.nextToLearn to SortOrder.DESC)
                     .limit(groupSize).asSequence()
                 val noteBook = NoteBook.find { NoteBookDb.userId eq userId }
@@ -121,8 +120,8 @@ data class GetReviewDataRsq(
     data class LearningRecord(
         val EF: String,
         val NOI: Int,
-        val lastToLearn: LocalDateTime,
-        val nextToLearn: LocalDateTime,
+        val lastToLearn: Instant,
+        val nextToLearn: Instant,
         val master: Boolean,
         val next_n: Int
     ) {
