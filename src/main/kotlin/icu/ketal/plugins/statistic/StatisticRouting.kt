@@ -15,6 +15,7 @@ fun Application.configureStatisticRouting() {
         }) {
             getWBLearnData()
             getAllWBData()
+            getSingleWBData()
         }
     }
 }
