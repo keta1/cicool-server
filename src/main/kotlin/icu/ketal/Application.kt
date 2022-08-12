@@ -1,6 +1,7 @@
 package icu.ketal
 
 import icu.ketal.plugins.configureRouting
+import icu.ketal.plugins.statistic.configureStatisticRouting
 import icu.ketal.plugins.user.configureUserRouting
 import icu.ketal.plugins.word.configureWordRouting
 import icu.ketal.utils.DBUtils
@@ -25,6 +26,7 @@ fun main() {
             configureRouting()
             configureUserRouting()
             configureWordRouting()
+            configureStatisticRouting()
         }
     }
 
