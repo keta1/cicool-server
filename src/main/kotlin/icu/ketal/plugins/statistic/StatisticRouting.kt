@@ -14,6 +14,7 @@ fun Application.configureStatisticRouting() {
             override val routing = this@routing
         }) {
             getWBLearnData()
+            getAllWBData()
         }
     }
 }
