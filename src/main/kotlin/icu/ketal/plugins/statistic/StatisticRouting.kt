@@ -18,6 +18,7 @@ fun Application.configureStatisticRouting() {
             getSingleWBData()
             getAllLearnData()
             getTodayLearnData()
+            getDailySum()
         }
     }
 }
