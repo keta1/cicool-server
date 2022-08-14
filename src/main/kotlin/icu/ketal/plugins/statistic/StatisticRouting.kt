@@ -26,6 +26,7 @@ fun Application.configureStatisticRouting() {
             getBkWord()
             getLearnedWord()
             getMasteredWord()
+            getReviewWord()
         }
     }
 }
