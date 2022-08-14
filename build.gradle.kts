@@ -1,4 +1,5 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompilerExecutionStrategy
 import java.io.FileInputStream
 import java.util.*
 
@@ -44,6 +45,7 @@ tasks.withType<KotlinCompile> {
             "-Xcontext-receivers"
         )
     }
+    compilerExecutionStrategy.set(KotlinCompilerExecutionStrategy.IN_PROCESS)
 }
 
 dependencies {
