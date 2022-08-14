@@ -17,20 +17,19 @@ import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.transactions.transaction
 
 context(StatisticRouting)
-fun getBkMasteredWord() {
-    routing.post("cicool/statistic/getBkMasteredWord") {
+fun getBkUnlearnedWord() {
+    routing.post("cicool/statistic/getBkUnlearnedWord") {
         kotlin.runCatching {
-            val (userId, bookId, num, skip) = call.receive<GetBkMasteredWordReq>()
+            val (userId, bookId, num, skip) = call.receive<GetBkUnlearnedWordReq>()
             val rsq = transaction {
-                val wordInBook = WordInBook.find { WordInBookDb.bookId eq bookId }.map { it.wordId }
-                val words = LearnRecord.find {
-                    LearnRecordDb.userId.eq(userId) and
-                            LearnRecordDb.master and
-                            LearnRecordDb.wordId.inList(wordInBook)
+                val record = LearnRecord.find { LearnRecordDb.userId eq userId }.map { it.wordId }
+                val words = WordInBook.find {
+                    WordInBookDb.bookId eq bookId and
+                            WordInBookDb.wordId.notInList(record)
                 }.limit(num, skip).mapNotNull {
                     Word.findById(it.wordId)
-                }.map { GetBkMasteredWordRsq.SWord(it) }
-                GetBkMasteredWordRsq(words = words)
+                }.map { GetBkUnlearnedWordRsq.SWord(it) }
+                GetBkUnlearnedWordRsq(words = words)
             }
             call.respond(rsq)
         }.onFailure {
@@ -41,7 +40,7 @@ fun getBkMasteredWord() {
 }
 
 @Serializable
-data class GetBkMasteredWordReq(
+data class GetBkUnlearnedWordReq(
     val userId: Int,
     val bookId: Int,
     val num: Int = 20,
@@ -49,7 +48,7 @@ data class GetBkMasteredWordReq(
 )
 
 @Serializable
-data class GetBkMasteredWordRsq(
+data class GetBkUnlearnedWordRsq(
     val errcode: Int = 200,
     val errmsg: String? = null,
     val words: List<SWord>
