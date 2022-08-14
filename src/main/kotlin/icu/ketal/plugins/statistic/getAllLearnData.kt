@@ -37,7 +37,7 @@ fun getAllLearnData() {
 
 @Serializable
 data class GetAllLearnDataReq(
-    val userId: Int,
+    val userId: Int
 )
 
 @Serializable

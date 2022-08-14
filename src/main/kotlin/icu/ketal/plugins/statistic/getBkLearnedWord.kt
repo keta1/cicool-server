@@ -44,8 +44,8 @@ fun getBkLearnedWord() {
 data class GetBkLearnedWordReq(
     val userId: Int,
     val bookId: Int,
-    val num: Int,
-    val skip: Long
+    val num: Int = 20,
+    val skip: Long = 0
 )
 
 
