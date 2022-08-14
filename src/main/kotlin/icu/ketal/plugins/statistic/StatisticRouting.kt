@@ -21,6 +21,7 @@ fun Application.configureStatisticRouting() {
             getDailySum()
             getNoteBookWord()
             getBkLearnedWord()
+            getBkMasteredWord()
         }
     }
 }
