@@ -22,4 +22,5 @@ suspend fun ApplicationCall.respondError(error: ServiceError) {
     )
 }
 
-fun Throwable.serviceError() = if (this is ServiceError) this else ServiceError(errmsg = message, t = this)
+fun Throwable.serviceError() = if (this is ServiceError) this else
+    ServiceError(500, 500, message, this)
