@@ -27,7 +27,7 @@ context(UserRouting)
 fun uploadAvatar() {
     routing.post("cicool/user/uploadAvatar") {
         call.catching {
-            val header = call.request.headers
+            val header = request.headers
             val fileSize = header["Content-Length"]
             val userId = header["X-User-Id"]?.toInt()
             check(userId, request)
@@ -56,13 +56,13 @@ fun uploadAvatar() {
             withContext(Dispatchers.IO) {
                 avatarPic.deleteIfExists()
             }
-            call.respondError(ServiceError.OK)
+            respondError(ServiceError.OK)
         }
     }
 
     routing.post("cicool/user/getAvatar") {
         call.catching {
-            val (userId) = call.receive<GetAvatarRequest>()
+            val (userId) = receive<GetAvatarRequest>()
             check(userId, request)
             val path = transaction {
                 User.findById(userId)!!.avatarPic
@@ -71,10 +71,10 @@ fun uploadAvatar() {
             if (!file.exists()) {
                 throw ServiceError.FILE_NOT_FOUND
             }
-            call.respondFile(file.toFile())
+            respondFile(file.toFile())
         }
     }
 }
 
 @Serializable
-data class GetAvatarRequest(var id: Int)
+data class GetAvatarRequest(var userId: Int)
