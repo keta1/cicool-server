@@ -28,6 +28,7 @@ fun Application.configureStatisticRouting() {
             getMasteredWord()
             getReviewWord()
             getTodayLearnWord()
+            getTodayReviewWord()
         }
     }
 }
