@@ -8,7 +8,6 @@ object WordDb : IntIdTable("word") {
     val phonetic = text("phonetic").nullable()
     val definition = text("definition").nullable()
     val translation = text("translation").nullable()
-    val pos = text("pos").nullable()
     val collins = integer("collins").default(0)
     val bnc = integer("bnc").nullable().default(null)
     val frq = integer("frq").nullable().default(null)

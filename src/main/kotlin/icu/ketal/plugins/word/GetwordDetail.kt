@@ -28,7 +28,9 @@ fun getWordDetail() {
                     WordBook.findById(it.bookId)
                 }.map { GetWordDetailRsp.SWordBook(it) }
                 GetWordDetailRsp(
-                    GetWordDetailRsp.SWord(word), inNoteBook, books
+                    word = GetWordDetailRsp.SWord(word),
+                    inNoteBook = inNoteBook,
+                    bookList = books
                 )
             }
             respond(rsp)
@@ -44,18 +46,19 @@ data class GetWordDetailReq(
 
 @Serializable
 data class GetWordDetailRsp(
+    val errcode: Int = 0,
+    val errmsg: String? = null,
     val word: SWord,
     val inNoteBook: Boolean,
-    val tagList: List<SWordBook> = emptyList()
+    val bookList: List<SWordBook> = emptyList()
 ) {
     @Serializable
     data class SWord(
-        val id: Int,
+        val wordId: Int,
         val word: String,
         val translation: String?,
         val phonetic: String?,
         val definition: String?,
-        val pos: String?,
         val collins: Int,
         val bnc: Int?,
         val frq: Int?,
@@ -67,7 +70,6 @@ data class GetWordDetailRsp(
             word.translation,
             word.phonetic,
             word.definition,
-            word.pos,
             word.collins,
             word.bnc,
             word.frq,
@@ -77,9 +79,9 @@ data class GetWordDetailRsp(
 
     @Serializable
     data class SWordBook(
-        val id: Int,
+        val bookId: Int,
         val name: String,
-        val description: String?,
+        val description: String,
         val total: Int
     ) {
         constructor(book: WordBook) : this(

@@ -14,7 +14,6 @@ import io.ktor.server.response.respond
 import io.ktor.server.routing.post
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
-import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import org.jetbrains.exposed.sql.Random
 import org.jetbrains.exposed.sql.SortOrder
@@ -69,9 +68,7 @@ private fun genSample(wordBookId: Int, size: Int): List<GetReviewDataRsq.Sample>
 
 @Serializable
 data class GetReviewDataReq(
-    @SerialName("user_id")
     val userId: Int,
-    @SerialName("wd_bk_id")
     val wordBookId: Int,
     val groupSize: Int = 10,
     val sample: Boolean = true

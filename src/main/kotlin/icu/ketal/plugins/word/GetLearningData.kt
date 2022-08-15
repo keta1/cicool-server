@@ -13,7 +13,6 @@ import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import io.ktor.server.routing.post
 import kotlinx.datetime.Instant
-import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import org.jetbrains.exposed.sql.Random
 import org.jetbrains.exposed.sql.SortOrder
@@ -24,7 +23,7 @@ context(WordRouting)
 fun getLearningData() {
     routing.post("cicool/word/getLearningData") {
         call.catching {
-            val (userId, wordBookId, groupSize, sample) = receive<GetLearningDataReq>()
+            val (userId, wordBookId, size, sample) = receive<GetLearningDataReq>()
             icu.ketal.plugins.user.check(userId, request)
             val sampleSize = if (sample) 5 else 0
             val rsp = transaction {
@@ -38,25 +37,23 @@ fun getLearningData() {
                             WordInBookDb.wordId.notInList(learnData.filter { it.completed }.map { it.wordId })
                 }
                     .orderBy(WordInBookDb.bookId to SortOrder.DESC)
-                    .limit(groupSize)
+                    .limit(size)
                     .asSequence()
                     .map { Word.findById(it.wordId)!! }
-                    .mapIndexed { index, word ->
+                    .map { word ->
                         val learningRecord = learnData.filter { !it.completed }
                             .firstOrNull { it.wordId == word.id.value }
                             ?.let { GetLearningDataRsq.LearningRecord(it) }
                         GetLearningDataRsq.SWord(
-                            index,
                             word,
                             noteBook.any { it.wordId == word.id.value },
                             learningRecord,
                             genSample(wordBookId, sampleSize)
                         )
                     }.toList()
-                val wordIdList = List(words.size) { words[it].wordId }
                 GetLearningDataRsq(
                     errcode = 200,
-                    data = GetLearningDataRsq.Data(words, wordIdList)
+                    wordList = words
                 )
             }
             respond(rsp)
@@ -71,7 +68,7 @@ private fun genSample(wordBookId: Int, size: Int): List<GetLearningDataRsq.Sampl
             .limit(size)
             .asSequence()
             .map { Word.findById(it.wordId)!! }
-            .mapIndexed { index, word -> GetLearningDataRsq.Sample(index, word) }
+            .map { word -> GetLearningDataRsq.Sample(word) }
             .toList()
     }
 }
@@ -80,7 +77,7 @@ private fun genSample(wordBookId: Int, size: Int): List<GetLearningDataRsq.Sampl
 data class GetLearningDataReq(
     val userId: Int,
     val wordBookId: Int,
-    val groupSize: Int = 10,
+    val size: Int = 10,
     val sample: Boolean = true
 )
 
@@ -88,18 +85,10 @@ data class GetLearningDataReq(
 data class GetLearningDataRsq(
     val errcode: Int = 0,
     val errmsg: String? = null,
-    val data: Data
+    val wordList: List<SWord>,
 ) {
     @Serializable
-    data class Data(
-        @SerialName("word_list")
-        val wordList: List<SWord>,
-        val wordIdList: List<Int>
-    )
-
-    @Serializable
     data class SWord(
-        val id: Int,
         val wordId: Int,
         val word: String,
         val translation: String?,
@@ -109,13 +98,11 @@ data class GetLearningDataRsq(
         val sampleList: List<Sample>
     ) {
         constructor(
-            id: Int,
             word: Word,
             inNotebook: Boolean,
             learningRecord: LearningRecord?,
             sampleList: List<Sample>
         ) : this(
-            id,
             word.id.value,
             word.word,
             word.translation,
@@ -139,13 +126,11 @@ data class GetLearningDataRsq(
 
     @Serializable
     data class Sample(
-        val id: Int,
         val wordId: Int,
         val word: String,
         val translation: String?
     ) {
-        constructor(id: Int, word: Word) : this(
-            id,
+        constructor(word: Word) : this(
             word.id.value,
             word.word,
             word.translation

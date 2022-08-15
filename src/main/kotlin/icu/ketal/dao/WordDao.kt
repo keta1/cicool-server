@@ -13,7 +13,6 @@ class Word(id: EntityID<Int>) : IntEntity(id) {
     val phonetic by WordDb.phonetic
     val definition by WordDb.definition
     val translation by WordDb.translation
-    val pos by WordDb.pos
     val collins by WordDb.collins
     val bnc by WordDb.bnc
     val frq by WordDb.frq

@@ -19,7 +19,7 @@ context(WordRouting)
 fun getSearchResult() {
     routing.post("cicool/word/getSearchResult") {
         call.catching {
-            val (userId, keyword, getLemma, recordLimit, skip) = receive<GetSearchResultReq>()
+            val (userId, keyword, getLemma, size, skip) = receive<GetSearchResultReq>()
             check(userId, request)
             val isTranslation = isTranslation(keyword)
             logger.info("keyword:$keyword")
@@ -28,7 +28,7 @@ fun getSearchResult() {
                 // 如果没有空格，则查询单个
                 val stems = if (getLemma) findStem(keyword).map { GetSearchResultRsq.SWord(it) } else emptyList()
                 // 使用sw字段进行前缀模糊查找
-                val words = findWords("${keyword.lowercase()}%", recordLimit, skip)
+                val words = findWords("${keyword.lowercase()}%", size, skip)
                     .sortedBy {
                         it.word.contains(" ")
                     }.map { GetSearchResultRsq.SWord(it) }
@@ -38,7 +38,7 @@ fun getSearchResult() {
                 logger.info("keyword:${keyword.lowercase().replace(" ", "%")}%")
                 val words = findWords(
                     "${keyword.lowercase().replace(" ", "%")}%",
-                    recordLimit,
+                    size,
                     skip
                 ).asSequence().sortedBy {
                     getIndexSum(keyword, it.word)
@@ -51,7 +51,7 @@ fun getSearchResult() {
                 logger.info("中文搜索")
                 val words = findTrans(
                     "${keyword.lowercase().replace(" ", "%")}%",
-                    recordLimit,
+                    size,
                     skip
                 ).asSequence().sortedBy {
                     it.word.contains(" ")
@@ -77,13 +77,13 @@ private fun findStem(keyword: String): List<Word> {
 
 private fun findWords(
     keyword: String,
-    recordLimit: Int = 20,
+    size: Int = 20,
     skip: Long = 0
 ): List<Word> {
     return transaction {
         Word.find {
             WordDb.sw like keyword
-        }.limit(recordLimit, skip).toList()
+        }.limit(size, skip).toList()
     }
 }
 
@@ -114,7 +114,7 @@ data class GetSearchResultReq(
     val userId: Int,
     val keyword: String,
     val getLemma: Boolean = true,
-    val recordLimit: Int = 20,
+    val size: Int = 20,
     val skip: Long = 0
 )
 
@@ -127,7 +127,7 @@ data class GetSearchResultRsq(
 ) {
     @Serializable
     data class SWord(
-        val id: Int,
+        val wordId: Int,
         val word: String,
         val translation: String?
     ) {
