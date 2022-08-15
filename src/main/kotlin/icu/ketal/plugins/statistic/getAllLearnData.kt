@@ -1,10 +1,8 @@
 package icu.ketal.plugins.statistic
 
 import icu.ketal.dao.LearnRecord
-import icu.ketal.data.ServiceError
 import icu.ketal.table.LearnRecordDb
-import icu.ketal.utils.logger
-import icu.ketal.utils.respondError
+import icu.ketal.utils.catching
 import io.ktor.server.application.call
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
@@ -15,8 +13,9 @@ import org.jetbrains.exposed.sql.transactions.transaction
 context(StatisticRouting)
 fun getAllLearnData() {
     routing.post("cicool/statistic/getAllLearnData") {
-        kotlin.runCatching {
-            val (userId) = call.receive<GetAllLearnDataReq>()
+        call.catching {
+            val (userId) = receive<GetAllLearnDataReq>()
+            icu.ketal.plugins.user.check(userId, request)
             val rsq = transaction {
                 val records = LearnRecord.find { LearnRecordDb.userId eq userId }
                 GetAllLearnDataRsq(
@@ -27,10 +26,7 @@ fun getAllLearnData() {
                     )
                 )
             }
-            call.respond(rsq)
-        }.onFailure {
-            logger.warn(it.stackTraceToString())
-            call.respondError(ServiceError.INTERNAL_SERVER_ERROR)
+            respond(rsq)
         }
     }
 }

@@ -8,8 +8,10 @@ class ServiceError(
     @Transient
     var httpStatusCode: Int = 200,
     var errcode: Int = 0,
-    var errmsg: String
-) {
+    var errmsg: String?,
+    @Transient
+    val t: Throwable? = null
+) : Exception(t) {
     companion object {
         val OK = ServiceError(200, 0, "OK")
         val BAD_REQUEST = ServiceError(400, 1, "Bad Request")

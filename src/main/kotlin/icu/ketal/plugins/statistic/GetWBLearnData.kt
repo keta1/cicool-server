@@ -2,11 +2,9 @@ package icu.ketal.plugins.statistic
 
 import icu.ketal.dao.LearnRecord
 import icu.ketal.dao.WordInBook
-import icu.ketal.data.ServiceError
 import icu.ketal.table.LearnRecordDb
 import icu.ketal.table.WordInBookDb
-import icu.ketal.utils.logger
-import icu.ketal.utils.respondError
+import icu.ketal.utils.catching
 import io.ktor.server.application.call
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
@@ -17,8 +15,9 @@ import org.jetbrains.exposed.sql.transactions.transaction
 context(StatisticRouting)
 fun getWBLearnData() {
     routing.post("cicool/statistic/getWBLearnData") {
-        kotlin.runCatching {
-            val (userId, bookId) = call.receive<GetWBLearnDataReq>()
+        call.catching {
+            val (userId, bookId) = receive<GetWBLearnDataReq>()
+            icu.ketal.plugins.user.check(userId, request)
             val rsq = transaction {
                 val record = LearnRecord.find { LearnRecordDb.userId eq userId }.toList()
                 val recordId = record.map { it.wordId }
@@ -34,10 +33,7 @@ fun getWBLearnData() {
                     )
                 )
             }
-            call.respond(rsq)
-        }.onFailure {
-            logger.warn(it.stackTraceToString())
-            call.respondError(ServiceError.INTERNAL_SERVER_ERROR)
+            respond(rsq)
         }
     }
 }

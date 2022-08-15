@@ -1,9 +1,7 @@
 package icu.ketal.plugins.user
 
 import icu.ketal.dao.User
-import icu.ketal.data.ServiceError
-import icu.ketal.utils.logger
-import icu.ketal.utils.respondError
+import icu.ketal.utils.catching
 import io.ktor.server.application.call
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
@@ -14,33 +12,23 @@ import org.jetbrains.exposed.sql.transactions.transaction
 context(UserRouting)
 fun getUserInfo() {
     routing.post("cicool/user/getUserInfo") {
-        kotlin.runCatching {
-            val req = call.receive<UserInfoRequest>()
-            val user = transaction {
-                User.findById(req.id)
-            }
-            val cookie = call.request.cookies["TOKEN"]
-            check(req.id, cookie)?.let {
-                call.respondError(it)
-                return@runCatching
-            }
-            call.respond(
+        call.catching {
+            val (id) = receive<UserInfoRequest>()
+            check(id, request)
+            val rsq = transaction {
+                val user = User.findById(id)!!
                 UserInfoResponse(
                     errcode = 0,
-                    data = UserInfoResponse.UserInfo(user!!)
+                    data = UserInfoResponse.UserInfo(user)
                 )
-            )
-        }.onFailure {
-            logger.warn(it.stackTraceToString())
-            call.respondError(ServiceError.INTERNAL_SERVER_ERROR)
+            }
+            respond(rsq)
         }
     }
 }
 
 @Serializable
-data class UserInfoRequest(
-    val id: Int = -1
-)
+data class UserInfoRequest(val userId: Int)
 
 @Serializable
 data class UserInfoResponse(

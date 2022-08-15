@@ -1,12 +1,10 @@
 package icu.ketal.plugins.statistic
 
 import icu.ketal.dao.DailySum
-import icu.ketal.data.ServiceError
 import icu.ketal.table.DailySumDb
 import icu.ketal.utils.DurationSerializer
-import icu.ketal.utils.logger
+import icu.ketal.utils.catching
 import icu.ketal.utils.now
-import icu.ketal.utils.respondError
 import io.ktor.server.application.call
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
@@ -20,8 +18,9 @@ import kotlin.time.Duration
 context(StatisticRouting)
 fun getTodayLearnData() {
     routing.post("cicool/statistic/getTodayLearnData") {
-        kotlin.runCatching {
-            val (userId) = call.receive<GetTodayLearnDataReq>()
+        call.catching {
+            val (userId) = receive<GetTodayLearnDataReq>()
+            icu.ketal.plugins.user.check(userId, request)
             val rsq = transaction {
                 val sum = DailySum.find { DailySumDb.userId.eq(userId) and DailySumDb.date.eq(Clock.System.now.date) }
                     .firstOrNull()?.let { GetTodayLearnDataRsq.Data(it) } ?: GetTodayLearnDataRsq.Data()
@@ -30,10 +29,7 @@ fun getTodayLearnData() {
                     data = sum
                 )
             }
-            call.respond(rsq)
-        }.onFailure {
-            logger.warn(it.stackTraceToString())
-            call.respondError(ServiceError.INTERNAL_SERVER_ERROR)
+            respond(rsq)
         }
     }
 }

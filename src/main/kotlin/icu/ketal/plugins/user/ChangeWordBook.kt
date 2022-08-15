@@ -11,14 +11,13 @@ import kotlinx.serialization.Serializable
 import org.jetbrains.exposed.sql.transactions.transaction
 
 context(UserRouting)
-fun changeUserInfo() {
-    routing.post("cicool/user/changeUserInfo") {
+fun changeWordBook() {
+    routing.post("cicool/user/changeWordBook") {
         call.catching {
-            val (id, nickName) = receive<ChangeUserInfoRequest>()
-            check(id, request)
+            val (userId, bookId) = receive<ChangeWordBookReq>()
+            check(userId, request)
             transaction {
-                val user = User.findById(id)!!
-                nickName?.let { user.nickName = it }
+                User.findById(userId)!!.bookId = bookId
             }
             respondError(ServiceError.OK)
         }
@@ -26,7 +25,4 @@ fun changeUserInfo() {
 }
 
 @Serializable
-data class ChangeUserInfoRequest(
-    var userId: Int,
-    var nickName: String? = null
-)
+data class ChangeWordBookReq(var userId: Int, var bookId: Int)

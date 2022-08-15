@@ -4,7 +4,7 @@ import icu.ketal.dao.User
 import icu.ketal.data.ServiceError
 import icu.ketal.utils.FILE_SIZE_LIMIT
 import icu.ketal.utils.FILE_STORE_PATH
-import icu.ketal.utils.logger
+import icu.ketal.utils.catching
 import icu.ketal.utils.respondError
 import io.ktor.server.application.call
 import io.ktor.server.request.receive
@@ -26,22 +26,16 @@ import kotlin.io.path.outputStream
 context(UserRouting)
 fun uploadAvatar() {
     routing.post("cicool/user/uploadAvatar") {
-        kotlin.runCatching {
+        call.catching {
             val header = call.request.headers
             val fileSize = header["Content-Length"]
-            val id = header["X-User-Id"]?.toInt()
-            val cookie = call.request.cookies["TOKEN"]
-            check(id, cookie)?.let {
-                call.respondError(it)
-                return@runCatching
-            }
+            val userId = header["X-User-Id"]?.toInt()
+            check(userId, request)
             if (fileSize == null) {
-                call.respondError(ServiceError.FILE_SIZE_UNKNOWN)
-                return@runCatching
+                throw ServiceError.FILE_SIZE_UNKNOWN
             }
             if (fileSize.toLong() > FILE_SIZE_LIMIT) {
-                call.respondError(ServiceError.FILE_SIZE_LIMIT)
-                return@runCatching
+                throw ServiceError.FILE_SIZE_LIMIT
             }
             val path = withContext(Dispatchers.IO) {
                 val stream = call.receiveStream()
@@ -54,7 +48,7 @@ fun uploadAvatar() {
                 path
             }
             val avatarPic = transaction {
-                val user = User.findById(id!!)!!
+                val user = User.findById(userId!!)!!
                 val avatarPic = user.avatarPic
                 user.avatarPic = path.toString()
                 Path(avatarPic)
@@ -63,37 +57,24 @@ fun uploadAvatar() {
                 avatarPic.deleteIfExists()
             }
             call.respondError(ServiceError.OK)
-        }.onFailure {
-            logger.warn(it.stackTraceToString())
-            call.respondError(ServiceError.INTERNAL_SERVER_ERROR)
         }
     }
 
     routing.post("cicool/user/getAvatar") {
-        kotlin.runCatching {
-            val req = call.receive<GetAvatarRequest>()
-            val cookie = call.request.cookies["TOKEN"]
-            check(req.id, cookie)?.let {
-                call.respondError(it)
-                return@runCatching
-            }
+        call.catching {
+            val (userId) = call.receive<GetAvatarRequest>()
+            check(userId, request)
             val path = transaction {
-                User.findById(req.id)!!.avatarPic
+                User.findById(userId)!!.avatarPic
             }
             val file = Path(path)
             if (!file.exists()) {
-                call.respondError(ServiceError.FILE_NOT_FOUND)
-                return@runCatching
+                throw ServiceError.FILE_NOT_FOUND
             }
             call.respondFile(file.toFile())
-        }.onFailure {
-            logger.warn(it.stackTraceToString())
-            call.respondError(ServiceError.INTERNAL_SERVER_ERROR)
         }
     }
 }
 
 @Serializable
-data class GetAvatarRequest(
-    var id: Int = -1
-)
+data class GetAvatarRequest(var id: Int)

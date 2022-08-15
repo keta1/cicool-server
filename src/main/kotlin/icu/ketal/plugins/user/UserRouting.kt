@@ -3,6 +3,7 @@ package icu.ketal.plugins.user
 import icu.ketal.dao.User
 import icu.ketal.data.ServiceError
 import io.ktor.server.application.Application
+import io.ktor.server.request.ApplicationRequest
 import io.ktor.server.routing.Routing
 import io.ktor.server.routing.routing
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -25,17 +26,17 @@ fun Application.configureUserRouting() {
     }
 }
 
-fun check(id: Int?, token: String?): ServiceError? {
+fun check(id: Int?, request: ApplicationRequest) {
+    val token = request.cookies["TOKEN"]
     if (id == null || token == null) {
-        return ServiceError.BAD_REQUEST
+        throw ServiceError.BAD_REQUEST
     }
     val user = transaction {
         User.findById(id)
     }
     if (user == null) {
-        return ServiceError.USER_NOT_FOUND
+        throw ServiceError.USER_NOT_FOUND
     } else if (user.token != token) {
-        return ServiceError.UNAUTHORIZED
+        throw ServiceError.UNAUTHORIZED
     }
-    return null
 }

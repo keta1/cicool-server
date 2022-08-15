@@ -3,8 +3,7 @@ package icu.ketal.plugins.word
 import icu.ketal.dao.NoteBook
 import icu.ketal.data.ServiceError
 import icu.ketal.table.NoteBookDb
-import icu.ketal.utils.logger
-import icu.ketal.utils.respondError
+import icu.ketal.utils.catching
 import io.ktor.server.application.call
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
@@ -17,8 +16,8 @@ import org.jetbrains.exposed.sql.transactions.transaction
 context(WordRouting)
 fun toggleAddToNB() {
     routing.post("cicool/word/toggleAddToNB") {
-        kotlin.runCatching {
-            val (userId, wordId, add) = call.receive<ToggleAddToNBReq>()
+        call.catching {
+            val (userId, wordId, add) = receive<ToggleAddToNBReq>()
             transaction {
                 if (add) {
                     NoteBook.new {
@@ -29,14 +28,11 @@ fun toggleAddToNB() {
                 } else {
                     // drop note
                     NoteBook.find {
-                        (NoteBookDb.userId eq userId) and (NoteBookDb.wordId eq wordId)
+                        NoteBookDb.userId.eq(userId) and (NoteBookDb.wordId eq wordId)
                     }.firstOrNull()?.delete()
                 }
             }
-            call.respond(ServiceError.OK)
-        }.onFailure {
-            logger.warn(it.stackTraceToString())
-            call.respondError(ServiceError.INTERNAL_SERVER_ERROR)
+            respond(ServiceError.OK)
         }
     }
 }

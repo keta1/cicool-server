@@ -4,12 +4,10 @@ import icu.ketal.dao.LearnRecord
 import icu.ketal.dao.NoteBook
 import icu.ketal.dao.Word
 import icu.ketal.dao.WordInBook
-import icu.ketal.data.ServiceError
 import icu.ketal.table.LearnRecordDb
 import icu.ketal.table.NoteBookDb
 import icu.ketal.table.WordInBookDb
-import icu.ketal.utils.logger
-import icu.ketal.utils.respondError
+import icu.ketal.utils.catching
 import io.ktor.server.application.call
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
@@ -25,8 +23,9 @@ import org.jetbrains.exposed.sql.transactions.transaction
 context(WordRouting)
 fun getLearningData() {
     routing.post("cicool/word/getLearningData") {
-        kotlin.runCatching {
-            val (userId, wordBookId, groupSize, sample) = call.receive<GetLearningDataReq>()
+        call.catching {
+            val (userId, wordBookId, groupSize, sample) = receive<GetLearningDataReq>()
+            icu.ketal.plugins.user.check(userId, request)
             val sampleSize = if (sample) 5 else 0
             val rsp = transaction {
                 val learnData = LearnRecord.find {
@@ -60,10 +59,7 @@ fun getLearningData() {
                     data = GetLearningDataRsq.Data(words, wordIdList)
                 )
             }
-            call.respond(rsp)
-        }.onFailure {
-            logger.warn(it.stackTraceToString())
-            call.respondError(ServiceError.INTERNAL_SERVER_ERROR)
+            respond(rsp)
         }
     }
 }
@@ -83,7 +79,6 @@ private fun genSample(wordBookId: Int, size: Int): List<GetLearningDataRsq.Sampl
 @Serializable
 data class GetLearningDataReq(
     val userId: Int,
-    @SerialName("wd_bk_id")
     val wordBookId: Int,
     val groupSize: Int = 10,
     val sample: Boolean = true
@@ -109,7 +104,7 @@ data class GetLearningDataRsq(
         val word: String,
         val translation: String?,
         val phonetic: String?,
-        val in_notebook: Boolean,
+        val inNotebook: Boolean,
         val learningRecord: LearningRecord?,
         val sampleList: List<Sample>
     ) {

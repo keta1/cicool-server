@@ -8,18 +8,16 @@ import icu.ketal.data.ServiceError
 import icu.ketal.table.DailySumDb
 import icu.ketal.table.LearnRecordDb
 import icu.ketal.utils.`Sm-5`
+import icu.ketal.utils.catching
 import icu.ketal.utils.decodeToDataClass
 import icu.ketal.utils.encodeToJson
-import icu.ketal.utils.logger
 import icu.ketal.utils.now
-import icu.ketal.utils.respondError
 import io.ktor.server.application.call
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import io.ktor.server.routing.post
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
-import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -28,14 +26,15 @@ import kotlin.time.Duration
 context(WordRouting)
 fun updateLearningRecord() {
     routing.post("cicool/word/updateLearningRecord") {
-        kotlin.runCatching {
-            val (userId, learningRecord) = call.receive<UpdateLearningRecordReq>()
+        call.catching {
+            val (userId, learningRecord) = receive<UpdateLearningRecordReq>()
+            icu.ketal.plugins.user.check(userId, request)
             transaction {
                 val user = User.findById(userId)!!
                 var ofMatrix = user.ofMatrix.decodeToDataClass<OFMatrix>()
                 learningRecord.forEach {
                     val (OF, record) = `Sm-5`.sm_5(ofMatrix, it)
-                    LearnRecord.find { LearnRecordDb.userId.eq(userId) and LearnRecordDb.wordId.eq(it.word_id) }
+                    LearnRecord.find { LearnRecordDb.userId.eq(userId) and LearnRecordDb.wordId.eq(it.wordId) }
                         .first().apply {
                             this.lastToLearn = record.last_l
                             this.nextToLearn = record.next_l!!
@@ -61,23 +60,19 @@ fun updateLearningRecord() {
 
                 user.ofMatrix = ofMatrix.encodeToJson()
             }
-            call.respond(ServiceError.OK)
-        }.onFailure {
-            logger.warn(it.stackTraceToString())
-            call.respondError(ServiceError.INTERNAL_SERVER_ERROR)
+            respond(ServiceError.OK)
         }
     }
 }
 
 @Serializable
 data class UpdateLearningRecordReq(
-    @SerialName("user_id")
     val userId: Int,
     val wordLearningRecord: List<LearningRecord>
 ) {
     @Serializable
     data class LearningRecord(
-        val word_id: Int,
+        val wordId: Int,
         val EF: String,
         val quality: Int,
         val NOI: Int,

@@ -2,10 +2,8 @@ package icu.ketal.plugins.statistic
 
 import icu.ketal.dao.LearnRecord
 import icu.ketal.dao.Word
-import icu.ketal.data.ServiceError
 import icu.ketal.table.LearnRecordDb
-import icu.ketal.utils.logger
-import icu.ketal.utils.respondError
+import icu.ketal.utils.catching
 import io.ktor.server.application.call
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
@@ -17,8 +15,9 @@ import org.jetbrains.exposed.sql.transactions.transaction
 context(StatisticRouting)
 fun getMasteredWord() {
     routing.post("cicool/statistic/getMasteredWord") {
-        kotlin.runCatching {
-            val (userId, num, skip) = call.receive<GetMasteredWordReq>()
+        call.catching {
+            val (userId, num, skip) = receive<GetMasteredWordReq>()
+            icu.ketal.plugins.user.check(userId, request)
             val rsq = transaction {
                 val words = LearnRecord.find {
                     LearnRecordDb.userId.eq(userId) and LearnRecordDb.master
@@ -27,10 +26,7 @@ fun getMasteredWord() {
                 }.map { GetMasteredWordRsq.SWord(it) }
                 GetMasteredWordRsq(words = words)
             }
-            call.respond(rsq)
-        }.onFailure {
-            logger.warn(it.stackTraceToString())
-            call.respondError(ServiceError.INTERNAL_SERVER_ERROR)
+            respond(rsq)
         }
     }
 }

@@ -3,11 +3,9 @@ package icu.ketal.plugins.statistic
 import icu.ketal.dao.LearnRecord
 import icu.ketal.dao.Word
 import icu.ketal.dao.WordInBook
-import icu.ketal.data.ServiceError
 import icu.ketal.table.LearnRecordDb
 import icu.ketal.table.WordInBookDb
-import icu.ketal.utils.logger
-import icu.ketal.utils.respondError
+import icu.ketal.utils.catching
 import io.ktor.server.application.call
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
@@ -19,8 +17,9 @@ import org.jetbrains.exposed.sql.transactions.transaction
 context(StatisticRouting)
 fun getBkLearnedWord() {
     routing.post("cicool/statistic/getBkLearnedWord") {
-        kotlin.runCatching {
-            val (userId, bookId, num, skip) = call.receive<GetBkLearnedWordReq>()
+        call.catching {
+            val (userId, bookId, num, skip) = receive<GetBkLearnedWordReq>()
+            icu.ketal.plugins.user.check(userId, request)
             val rsq = transaction {
                 val wordInBook = WordInBook.find { WordInBookDb.bookId eq bookId }.map { it.wordId }
                 val words = LearnRecord.find {
@@ -32,10 +31,7 @@ fun getBkLearnedWord() {
                     }.map { GetBkLearnedWordRsq.SWord(it) }
                 GetBkLearnedWordRsq(words = words)
             }
-            call.respond(rsq)
-        }.onFailure {
-            logger.warn(it.stackTraceToString())
-            call.respondError(ServiceError.INTERNAL_SERVER_ERROR)
+            respond(rsq)
         }
     }
 }
@@ -47,7 +43,6 @@ data class GetBkLearnedWordReq(
     val num: Int = 20,
     val skip: Long = 0
 )
-
 
 @Serializable
 data class GetBkLearnedWordRsq(

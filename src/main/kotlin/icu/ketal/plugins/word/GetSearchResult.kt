@@ -2,13 +2,12 @@ package icu.ketal.plugins.word
 
 import icu.ketal.dao.Lemma
 import icu.ketal.dao.Word
-import icu.ketal.data.ServiceError
 import icu.ketal.plugins.user.check
 import icu.ketal.table.LemmaDb
 import icu.ketal.table.WordDb
+import icu.ketal.utils.catching
 import icu.ketal.utils.isTranslation
 import icu.ketal.utils.logger
-import icu.ketal.utils.respondError
 import io.ktor.server.application.call
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
@@ -19,13 +18,9 @@ import org.jetbrains.exposed.sql.transactions.transaction
 context(WordRouting)
 fun getSearchResult() {
     routing.post("cicool/word/getSearchResult") {
-        kotlin.runCatching {
-            val (userId, keyword, getLemma, recordLimit, skip) = call.receive<GetSearchResultReq>()
-            val cookie = call.request.cookies["TOKEN"]
-            check(userId, cookie)?.let {
-                call.respondError(it)
-                return@runCatching
-            }
+        call.catching {
+            val (userId, keyword, getLemma, recordLimit, skip) = receive<GetSearchResultReq>()
+            check(userId, request)
             val isTranslation = isTranslation(keyword)
             logger.info("keyword:$keyword")
             if (!isTranslation && !keyword.contains(" ")) {
@@ -37,7 +32,7 @@ fun getSearchResult() {
                     .sortedBy {
                         it.word.contains(" ")
                     }.map { GetSearchResultRsq.SWord(it) }
-                call.respond(GetSearchResultRsq(lemmaSearch = stems, directSearch = words))
+                respond(GetSearchResultRsq(lemmaSearch = stems, directSearch = words))
             } else if (!isTranslation) {
                 // 有空格情况，不进行原型查找，将空格换为任意位数通配符进行匹配
                 logger.info("keyword:${keyword.lowercase().replace(" ", "%")}%")
@@ -50,7 +45,7 @@ fun getSearchResult() {
                 }.sortedBy {
                     it.word.contains(" ")
                 }.map { GetSearchResultRsq.SWord(it) }.toList()
-                call.respond(GetSearchResultRsq(directSearch = words))
+                respond(GetSearchResultRsq(directSearch = words))
             } else {
                 // 中文的情况
                 logger.info("中文搜索")
@@ -61,12 +56,8 @@ fun getSearchResult() {
                 ).asSequence().sortedBy {
                     it.word.contains(" ")
                 }.map { GetSearchResultRsq.SWord(it) }.toList()
-                call.respond(GetSearchResultRsq(directSearch = words))
+                respond(GetSearchResultRsq(directSearch = words))
             }
-            call.respond("OK")
-        }.onFailure {
-            logger.warn(it.stackTraceToString())
-            call.respondError(ServiceError.INTERNAL_SERVER_ERROR)
         }
     }
 }

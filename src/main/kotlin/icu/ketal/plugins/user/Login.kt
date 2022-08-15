@@ -4,8 +4,8 @@ import icu.ketal.dao.User
 import icu.ketal.data.ServiceError
 import icu.ketal.table.UserDb
 import icu.ketal.utils.WechatUtils
+import icu.ketal.utils.catching
 import icu.ketal.utils.genSalt
-import icu.ketal.utils.logger
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.call
 import io.ktor.server.request.receive
@@ -18,22 +18,15 @@ import org.jetbrains.exposed.sql.transactions.transaction
 context(UserRouting)
 fun login() {
     routing.post("cicool/user/login") {
-        kotlin.runCatching {
-            val req = call.receive<UserLoginRequest>()
-            val session = WechatUtils.code2Session(req.code)
+        call.catching {
+            val (code) = receive<UserLoginRequest>()
+            val session = WechatUtils.code2Session(code)
             if (session.errCode != 0) {
-                call.respond(
-                    ServiceError(
-                        HttpStatusCode.BadRequest.value,
-                        session.errCode,
-                        session.errMsg
-                    )
-                )
-                return@runCatching
+                throw ServiceError(HttpStatusCode.BadRequest.value, session.errCode, session.errMsg)
             }
-            val user = transaction {
+            val rsq = transaction {
                 val user = User.find { UserDb.openId eq session.openId }.firstOrNull()
-                if (user == null) {
+                val uu = if (user == null) {
                     User.new {
                         openId = session.openId
                         sessionKey = session.sessionKey
@@ -46,24 +39,18 @@ fun login() {
                     user.sessionKey = session.sessionKey
                     user
                 }
-            }
-            call.respond(
                 UserLoginResponse(
                     errcode = 0,
-                    data = UserLoginResponse.UserInfo(user)
+                    data = UserLoginResponse.UserInfo(uu)
                 )
-            )
-        }.onFailure {
-            logger.warn(it.stackTraceToString())
-            call.respond(ServiceError.INTERNAL_SERVER_ERROR)
+            }
+            respond(rsq)
         }
     }
 }
 
 @Serializable
-class UserLoginRequest(
-    var code: String = ""
-)
+data class UserLoginRequest(var code: String)
 
 @Serializable
 data class UserLoginResponse(

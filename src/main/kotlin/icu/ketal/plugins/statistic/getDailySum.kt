@@ -1,11 +1,9 @@
 package icu.ketal.plugins.statistic
 
 import icu.ketal.dao.DailySum
-import icu.ketal.data.ServiceError
 import icu.ketal.table.DailySumDb
-import icu.ketal.utils.logger
+import icu.ketal.utils.catching
 import icu.ketal.utils.now
-import icu.ketal.utils.respondError
 import io.ktor.server.application.call
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
@@ -19,8 +17,9 @@ import org.jetbrains.exposed.sql.transactions.transaction
 context(StatisticRouting)
 fun getDailySum() {
     routing.post("cicool/statistic/getDailySum") {
-        kotlin.runCatching {
-            val (userId, skip) = call.receive<GetDailySumReq>()
+        call.catching {
+            val (userId, skip) = receive<GetDailySumReq>()
+            icu.ketal.plugins.user.check(userId, request)
             val rsq = transaction {
                 val dailySum =
                     DailySum.find { DailySumDb.userId.eq(userId) and DailySumDb.date.lessEq(Clock.System.now.date) }
@@ -32,10 +31,7 @@ fun getDailySum() {
                     dailySum = dailySum
                 )
             }
-            call.respond(rsq)
-        }.onFailure {
-            logger.warn(it.stackTraceToString())
-            call.respondError(ServiceError.INTERNAL_SERVER_ERROR)
+            respond(rsq)
         }
     }
 }

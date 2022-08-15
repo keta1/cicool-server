@@ -1,9 +1,7 @@
 package icu.ketal.plugins.statistic
 
 import icu.ketal.dao.WordBook
-import icu.ketal.data.ServiceError
-import icu.ketal.utils.logger
-import icu.ketal.utils.respondError
+import icu.ketal.utils.catching
 import io.ktor.server.application.call
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
@@ -14,8 +12,9 @@ import org.jetbrains.exposed.sql.transactions.transaction
 context(StatisticRouting)
 fun getSingleWBData() {
     routing.post("cicool/statistic/getSingleWBData") {
-        kotlin.runCatching {
+        call.catching {
             val (userId, bookId) = call.receive<GetSingleWBDataReq>()
+            icu.ketal.plugins.user.check(userId, request)
             val rsq = transaction {
                 val book = WordBook.findById(bookId)!!
                 GetSingleWBDataRsq(
@@ -23,10 +22,7 @@ fun getSingleWBData() {
                     book = GetSingleWBDataRsq.Book(book)
                 )
             }
-            call.respond(rsq)
-        }.onFailure {
-            logger.warn(it.stackTraceToString())
-            call.respondError(ServiceError.INTERNAL_SERVER_ERROR)
+            respond(rsq)
         }
     }
 }

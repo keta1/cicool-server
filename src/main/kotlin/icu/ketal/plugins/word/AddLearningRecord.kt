@@ -4,9 +4,8 @@ import icu.ketal.dao.DailySum
 import icu.ketal.dao.LearnRecord
 import icu.ketal.data.ServiceError
 import icu.ketal.table.DailySumDb
-import icu.ketal.utils.logger
+import icu.ketal.utils.catching
 import icu.ketal.utils.now
-import icu.ketal.utils.respondError
 import icu.ketal.utils.timeZone
 import io.ktor.server.application.call
 import io.ktor.server.request.receive
@@ -16,7 +15,6 @@ import kotlinx.datetime.Clock
 import kotlinx.datetime.DateTimeUnit.Companion.DAY
 import kotlinx.datetime.Instant
 import kotlinx.datetime.plus
-import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import org.jetbrains.exposed.sql.transactions.transaction
 import kotlin.time.Duration
@@ -24,8 +22,9 @@ import kotlin.time.Duration
 context(WordRouting)
 fun addLearningRecord() {
     routing.post("cicool/word/addLearningRecord") {
-        kotlin.runCatching {
-            val (userId, record) = call.receive<AddLearningRecordReq>()
+        call.catching {
+            val (userId, record) = receive<AddLearningRecordReq>()
+            icu.ketal.plugins.user.check(userId, request)
             transaction {
                 record.forEach {
                     LearnRecord.new {
@@ -55,17 +54,13 @@ fun addLearningRecord() {
                     sum.learn += record.size
                 }
             }
-            call.respond(ServiceError.OK)
-        }.onFailure {
-            logger.warn(it.stackTraceToString())
-            call.respondError(ServiceError.INTERNAL_SERVER_ERROR)
+            respond(ServiceError.OK)
         }
     }
 }
 
 @Serializable
 data class AddLearningRecordReq(
-    @SerialName("user_id")
     val userId: Int,
     val record: List<LearningRecord>,
 ) {

@@ -4,30 +4,23 @@ import icu.ketal.dao.NoteBook
 import icu.ketal.dao.Word
 import icu.ketal.dao.WordBook
 import icu.ketal.dao.WordInBook
-import icu.ketal.data.ServiceError
 import icu.ketal.plugins.user.check
 import icu.ketal.table.NoteBookDb
 import icu.ketal.table.WordInBookDb
-import icu.ketal.utils.logger
-import icu.ketal.utils.respondError
+import icu.ketal.utils.catching
 import io.ktor.server.application.call
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import io.ktor.server.routing.post
-import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import org.jetbrains.exposed.sql.transactions.transaction
 
 context(WordRouting)
 fun getWordDetail() {
     routing.post("cicool/word/getWordDetail") {
-        kotlin.runCatching {
-            val (userId, wordId) = call.receive<GetWordDetailReq>()
-            val cookie = call.request.cookies["TOKEN"]
-            check(userId, cookie)?.let {
-                call.respondError(it)
-                return@runCatching
-            }
+        call.catching {
+            val (userId, wordId) = receive<GetWordDetailReq>()
+            check(userId, request)
             val rsp = transaction {
                 val word = Word.findById(wordId)!!
                 val inNoteBook = NoteBook.find { NoteBookDb.wordId eq wordId }.any()
@@ -38,10 +31,7 @@ fun getWordDetail() {
                     GetWordDetailRsp.SWord(word), inNoteBook, books
                 )
             }
-            call.respond(rsp)
-        }.onFailure {
-            logger.warn(it.stackTraceToString())
-            call.respondError(ServiceError.INTERNAL_SERVER_ERROR)
+            respond(rsp)
         }
     }
 }
@@ -55,7 +45,6 @@ data class GetWordDetailReq(
 @Serializable
 data class GetWordDetailRsp(
     val word: SWord,
-    @SerialName("in_notebook")
     val inNoteBook: Boolean,
     val tagList: List<SWordBook> = emptyList()
 ) {

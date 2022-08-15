@@ -4,12 +4,10 @@ import icu.ketal.dao.LearnRecord
 import icu.ketal.dao.NoteBook
 import icu.ketal.dao.Word
 import icu.ketal.dao.WordInBook
-import icu.ketal.data.ServiceError
 import icu.ketal.table.LearnRecordDb
 import icu.ketal.table.NoteBookDb
 import icu.ketal.table.WordInBookDb
-import icu.ketal.utils.logger
-import icu.ketal.utils.respondError
+import icu.ketal.utils.catching
 import io.ktor.server.application.call
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
@@ -26,8 +24,9 @@ import org.jetbrains.exposed.sql.transactions.transaction
 context(WordRouting)
 fun getReviewData() {
     routing.post("cicool/word/getReviewData") {
-        kotlin.runCatching {
-            val (userId, wordBookId, groupSize, sample) = call.receive<GetReviewDataReq>()
+        call.catching {
+            val (userId, wordBookId, groupSize, sample) = receive<GetReviewDataReq>()
+            icu.ketal.plugins.user.check(userId, request)
             val sampleSize = if (sample) 5 else 0
             val rsp = transaction {
                 val wordInBook = WordInBook.find { WordInBookDb.bookId eq wordBookId }.toList()
@@ -50,10 +49,7 @@ fun getReviewData() {
                     }.toList()
                 GetReviewDataRsq(errcode = 200, data = GetReviewDataRsq.Data(words))
             }
-            call.respond(rsp)
-        }.onFailure {
-            logger.warn(it.stackTraceToString())
-            call.respondError(ServiceError.INTERNAL_SERVER_ERROR)
+            respond(rsp)
         }
     }
 }
@@ -89,7 +85,6 @@ data class GetReviewDataRsq(
 ) {
     @Serializable
     data class Data(
-        @SerialName("word_list")
         val wordList: List<SWord>
     )
 
@@ -100,7 +95,7 @@ data class GetReviewDataRsq(
         val word: String,
         val translation: String?,
         val phonetic: String?,
-        val in_notebook: Boolean,
+        val inNotebook: Boolean,
         val record: LearningRecord,
         val sampleList: List<Sample>
     ) {
