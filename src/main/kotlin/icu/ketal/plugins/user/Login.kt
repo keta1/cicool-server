@@ -3,7 +3,6 @@ package icu.ketal.plugins.user
 import icu.ketal.dao.User
 import icu.ketal.data.ServiceError
 import icu.ketal.table.UserDb
-import icu.ketal.utils.TimeUtil
 import icu.ketal.utils.WechatUtils
 import icu.ketal.utils.genSalt
 import icu.ketal.utils.logger
@@ -12,6 +11,7 @@ import io.ktor.server.application.call
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import io.ktor.server.routing.post
+import kotlinx.datetime.Clock
 import kotlinx.serialization.Serializable
 import org.jetbrains.exposed.sql.transactions.transaction
 
@@ -38,11 +38,11 @@ fun login() {
                         openId = session.openId
                         sessionKey = session.sessionKey
                         salt = genSalt(16)
-                        createTime = TimeUtil.now
+                        createTime = Clock.System.now().epochSeconds
                         lastLogin = createTime
                     }
                 } else {
-                    user.lastLogin = TimeUtil.now
+                    user.lastLogin = Clock.System.now().epochSeconds
                     user.sessionKey = session.sessionKey
                     user
                 }
