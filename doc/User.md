@@ -76,9 +76,9 @@ Content-Type: application/json
 
 Content-Type: application/json
 
-| 参数名 | 类型  | 内容   | 必要性 | 备注  |
-|-----|-----|------|-----|-----|
-| id  | num | 用户id | 必要  |     |
+| 参数名    | 类型  | 内容   | 必要性 | 备注  |
+|--------|-----|------|-----|-----|
+| userId | num | 用户id | 必要  |     |
 
 **json回复：**
 
@@ -131,7 +131,7 @@ Content-Type: application/json
 
 | 参数名      | 类型  | 内容   | 必要性 | 备注  |
 |----------|-----|------|-----|-----|
-| id       | num | 用户id | 必要  |     |
+| userId   | num | 用户id | 必要  |     |
 | nickName | str | 用户昵称 | 非必要 |     |
 
 **json回复：**
@@ -200,8 +200,41 @@ Content-Type: application/json
 
 Content-Type: application/json
 
-| 参数名 | 类型  | 内容   | 必要性 | 备注  |
-|-----|-----|------|-----|-----|
-| id  | num | 用户id | 必要  |     |
+| 参数名    | 类型  | 内容   | 必要性 | 备注  |
+|--------|-----|------|-----|-----|
+| userId | num | 用户id | 必要  |     |
 
+## 修改单词书
 
+> https://loaclhost:5301/cicool/user/changeWordBook
+*请求方式：POST*
+
+认证方式：Cookie(TOKEN)
+
+**url参数：**
+
+Content-Type: application/json
+
+| 参数名    | 类型  | 内容    | 必要性 | 备注  |
+|--------|-----|-------|-----|-----|
+| userId | num | 用户id  | 必要  |     |
+| bookId | num | 单词书id | 必要  |     |
+
+**json回复：**
+
+根对象：
+
+| 字段      | 类型  | 内容   | 备注                   |
+|---------|-----|------|----------------------|
+| errcode | num | 返回值  | 0 请求成功<br/>500 服务器错误 |
+| errmsg  | str | 错误信息 |                      |
+
+<details>
+<summary>查看响应示例：</summary>
+
+```json
+{
+  "errcode": 0,
+  "errmsg": "OK"
+}
+```
