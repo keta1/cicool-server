@@ -24,10 +24,7 @@ fun getTodayLearnData() {
             val rsq = transaction {
                 val sum = DailySum.find { DailySumDb.userId.eq(userId) and DailySumDb.date.eq(Clock.System.now.date) }
                     .firstOrNull()?.let { GetTodayLearnDataRsq.Data(it) } ?: GetTodayLearnDataRsq.Data()
-                GetTodayLearnDataRsq(
-                    errcode = 200,
-                    data = sum
-                )
+                GetTodayLearnDataRsq(data = sum)
             }
             respond(rsq)
         }

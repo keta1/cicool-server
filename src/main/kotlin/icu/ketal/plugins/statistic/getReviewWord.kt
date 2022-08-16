@@ -34,7 +34,7 @@ fun getReviewWord() {
 @Serializable
 data class GetReviewWordReq(
     val userId: Int,
-    val num: Int = 20,
+    val size: Int = 20,
     val skip: Long = 0
 )
 

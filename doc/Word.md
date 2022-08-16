@@ -117,9 +117,9 @@ Content-Type: application/json
 | translation | str | 翻译                          | 可能为空             |
 | phonetic    | str | 音标                          | 可能是美式也可能是英式，可能为空 |
 | definition  | str | 单词释义(英文)                    |                  |
-| collins     | int | 柯林斯星级                       | 0代表不存在           |
-| bnc         | int | 英国国家语料库词频顺序                 |                  |
-| frq         | int | 当代语料库词频顺序                   |                  |
+| collins     | num | 柯林斯星级                       | 0代表不存在           |
+| bnc         | num | 英国国家语料库词频顺序                 |                  |
+| frq         | num | 当代语料库词频顺序                   |                  |
 | exchange    | str | 时态复数等变换，使用 "/" 分割不同项目，见后面表格 |                  |
 
 `WordBook`对象：

@@ -17,10 +17,7 @@ fun getUserInfo() {
             check(id, request)
             val rsq = transaction {
                 val user = User.findById(id)!!
-                UserInfoResponse(
-                    errcode = 0,
-                    data = UserInfoResponse.UserInfo(user)
-                )
+                UserInfoResponse(data = UserInfoResponse.UserInfo(user))
             }
             respond(rsq)
         }
@@ -32,7 +29,7 @@ data class UserInfoRequest(val userId: Int)
 
 @Serializable
 data class UserInfoResponse(
-    val errcode: Int,
+    val errcode: Int = 0,
     val errmsg: String? = null,
     val data: UserInfo? = null,
 ) {

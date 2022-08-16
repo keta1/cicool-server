@@ -38,13 +38,13 @@ fun getTodayReviewWord() {
 @Serializable
 data class GetTodayReviewWordReq(
     val userId: Int,
-    val num: Int = 20,
+    val size: Int = 20,
     val skip: Long = 0
 )
 
 @Serializable
 data class GetTodayReviewWordRsq(
-    val errcode: Int = 200,
+    val errcode: Int = 0,
     val errmsg: String? = null,
     val words: List<SWord>
 ) {

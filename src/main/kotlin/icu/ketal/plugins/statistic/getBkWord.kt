@@ -34,13 +34,13 @@ fun getBkWord() {
 data class GetBkWordReq(
     val userId: Int,
     val bookId: Int,
-    val num: Int = 20,
+    val size: Int = 20,
     val skip: Long = 0
 )
 
 @Serializable
 data class GetBkWordRsq(
-    val errcode: Int = 200,
+    val errcode: Int = 0,
     val errmsg: String? = null,
     val words: List<SWord>
 ) {

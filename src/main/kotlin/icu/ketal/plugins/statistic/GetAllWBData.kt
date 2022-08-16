@@ -17,10 +17,7 @@ fun getAllWBData() {
             icu.ketal.plugins.user.check(userId, request)
             val rsq = transaction {
                 val books = WordBook.all().map { GetAllWBDataRsq.Book(it) }
-                GetAllWBDataRsq(
-                    errcode = 200,
-                    books = books
-                )
+                GetAllWBDataRsq(books = books)
             }
             respond(rsq)
         }
@@ -41,6 +38,7 @@ data class GetAllWBDataRsq(
 ) {
     @Serializable
     data class Book(
+        val bookId: Int,
         val name: String,
         val description: String,
         val total: Int,
@@ -49,6 +47,7 @@ data class GetAllWBDataRsq(
         val coverUrl: String?
     ) {
         constructor(book: WordBook) : this(
+            book.id.value,
             book.name,
             book.description,
             book.total,

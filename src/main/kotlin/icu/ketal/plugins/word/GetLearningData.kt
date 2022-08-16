@@ -51,10 +51,7 @@ fun getLearningData() {
                             genSample(wordBookId, sampleSize)
                         )
                     }.toList()
-                GetLearningDataRsq(
-                    errcode = 200,
-                    wordList = words
-                )
+                GetLearningDataRsq(wordList = words)
             }
             respond(rsp)
         }

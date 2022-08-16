@@ -19,11 +19,8 @@ fun getAllLearnData() {
             val rsq = transaction {
                 val records = LearnRecord.find { LearnRecordDb.userId eq userId }
                 GetAllLearnDataRsq(
-                    errcode = 200,
-                    data = GetAllLearnDataRsq.Data(
-                        records.count().toInt(),
-                        records.count { it.master }
-                    )
+                    learn = records.count().toInt(),
+                    master = records.count { it.master }
                 )
             }
             respond(rsq)
@@ -40,11 +37,6 @@ data class GetAllLearnDataReq(
 data class GetAllLearnDataRsq(
     val errcode: Int = 0,
     val errmsg: String? = null,
-    val data: Data
-) {
-    @Serializable
-    data class Data(
-        val learn: Int,
-        val master: Int
-    )
-}
+    val learn: Int,
+    val master: Int
+)

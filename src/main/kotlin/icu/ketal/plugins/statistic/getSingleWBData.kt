@@ -17,16 +17,12 @@ fun getSingleWBData() {
             icu.ketal.plugins.user.check(userId, request)
             val rsq = transaction {
                 val book = WordBook.findById(bookId)!!
-                GetSingleWBDataRsq(
-                    errcode = 200,
-                    book = GetSingleWBDataRsq.Book(book)
-                )
+                GetSingleWBDataRsq(book = GetSingleWBDataRsq.Book(book))
             }
             respond(rsq)
         }
     }
 }
-
 
 @Serializable
 data class GetSingleWBDataReq(

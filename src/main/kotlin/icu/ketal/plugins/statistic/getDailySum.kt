@@ -18,18 +18,14 @@ context(StatisticRouting)
 fun getDailySum() {
     routing.post("cicool/statistic/getDailySum") {
         call.catching {
-            val (userId, skip) = receive<GetDailySumReq>()
+            val (userId, num, skip) = receive<GetDailySumReq>()
             icu.ketal.plugins.user.check(userId, request)
             val rsq = transaction {
                 val dailySum =
                     DailySum.find { DailySumDb.userId.eq(userId) and DailySumDb.date.lessEq(Clock.System.now.date) }
-                        .limit(10, skip)
+                        .limit(num, skip)
                         .map { GetDailySumRsq.Data(it) }
-
-                GetDailySumRsq(
-                    errcode = 200,
-                    dailySum = dailySum
-                )
+                GetDailySumRsq(dailySum = dailySum)
             }
             respond(rsq)
         }
@@ -39,6 +35,7 @@ fun getDailySum() {
 @Serializable
 data class GetDailySumReq(
     val userId: Int,
+    val size: Int = 10,
     val skip: Long = 0
 )
 

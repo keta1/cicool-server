@@ -39,10 +39,7 @@ fun login() {
                     user.sessionKey = session.sessionKey
                     user
                 }
-                UserLoginResponse(
-                    errcode = 0,
-                    data = UserLoginResponse.UserInfo(uu)
-                )
+                UserLoginResponse(data = UserLoginResponse.UserInfo(uu))
             }
             respond(rsq)
         }
@@ -54,7 +51,7 @@ data class UserLoginRequest(var code: String)
 
 @Serializable
 data class UserLoginResponse(
-    val errcode: Int,
+    val errcode: Int = 0,
     val errmsg: String? = null,
     val data: UserInfo? = null,
 ) {

@@ -45,7 +45,7 @@ fun getReviewData() {
                             genSample(wordBookId, sampleSize)
                         )
                     }.toList()
-                GetReviewDataRsq(errcode = 200, wordList = words)
+                GetReviewDataRsq(wordList = words)
             }
             respond(rsp)
         }

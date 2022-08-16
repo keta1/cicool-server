@@ -16,12 +16,12 @@ context(StatisticRouting)
 fun getMasteredWord() {
     routing.post("cicool/statistic/getMasteredWord") {
         call.catching {
-            val (userId, num, skip) = receive<GetMasteredWordReq>()
+            val (userId, size, skip) = receive<GetMasteredWordReq>()
             icu.ketal.plugins.user.check(userId, request)
             val rsq = transaction {
                 val words = LearnRecord.find {
                     LearnRecordDb.userId.eq(userId) and LearnRecordDb.master
-                }.limit(num, skip).mapNotNull {
+                }.limit(size, skip).mapNotNull {
                     Word.findById(it.wordId)
                 }.map { GetMasteredWordRsq.SWord(it) }
                 GetMasteredWordRsq(words = words)
@@ -34,13 +34,13 @@ fun getMasteredWord() {
 @Serializable
 data class GetMasteredWordReq(
     val userId: Int,
-    val num: Int = 20,
+    val size: Int = 20,
     val skip: Long = 0
 )
 
 @Serializable
 data class GetMasteredWordRsq(
-    val errcode: Int = 200,
+    val errcode: Int = 0,
     val errmsg: String? = null,
     val words: List<SWord>
 ) {

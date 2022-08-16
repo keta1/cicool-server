@@ -25,7 +25,6 @@ fun getWBLearnData() {
                 val learned = words.filter { it.wordId in recordId }
                 val total = words.size
                 GetWBLearnDataRsq(
-                    errcode = 200,
                     data = GetWBLearnDataRsq.Data(
                         total - learned.size,
                         learned.size,
