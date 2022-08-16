@@ -80,7 +80,6 @@ Content-Type: application/json
   ]
 }
 ```
-
 </details>
 
 ## 获取单词详细信息
@@ -173,7 +172,6 @@ Content-Type: application/json
   ]
 }
 ```
-
 </details>
 
 ## 获取基本学习数据
@@ -212,7 +210,6 @@ Content-Type: application/json
   "needToReview": 0
 }
 ```
-
 </details>
 
 ## 获取学习数据
@@ -312,6 +309,253 @@ Content-Type: application/json
       ]
     }
   ]
+}
+```
+
+</details>
+
+## 获取复习数据
+
+> https://loaclhost:5301/word/getReviewData
+*请求方式：POST*
+
+**url参数：**
+
+Content-Type: application/json
+
+| 参数名        | 类型   | 内容       | 必要性 | 备注      |
+|------------|------|----------|-----|---------|
+| userId     | num  | 用户id     | 必要  |         |
+| wordBookId | num  | 词书id     | 必要  |         |
+| size       | num  | 请求单词数量   | 必要  | 默认返回10个 |
+| sample     | bool | 是否生成混淆列表 | 必要  | 默认生成    |
+
+**json回复：**
+
+根对象：
+
+| 字段         | 类型          | 内容   | 备注  |
+|------------|-------------|------|-----|
+| errcode    | num         | 返回值  |     |
+| errmsg     | str         | 错误信息 |     |
+| wordList   | list `word` | 单词列表 |     |
+
+`word`对象：
+
+| 字段             | 类型            | 内容         | 备注               |
+|----------------|---------------|------------|------------------|
+| wordId         | num           | 单词id       |                  |
+| word           | str           | 单词         |                  |
+| translation    | str           | 翻译         | 可能为空             |
+| phonetic       | str           | 音标         | 可能是美式也可能是英式，可能为空 |
+| inNotebook     | bool          | 是否在用户的生词本  |                  |
+| learningRecord | obj           | 之前未完成的学习记录 | 可能为空             |
+| sampleList     | list `Sample` | 混淆列表       |                  |
+
+`learningRecord`对象：
+
+| 字段          | 类型   | 内容           | 备注  |
+|-------------|------|--------------|-----|
+| EF          | str  | EF           |     |
+| NOI         | num  | 下次需要复习的时间（天） |     |
+| lastToLearn | time | 最后一次学习的时间    |     |
+| nextToLearn | time | 下次学习的时间      |     |
+| master      | bool | 是否掌握了单词      |     |
+| next_n      | num  | next_n       |     |
+
+`Sample`对象：
+
+| 字段          | 类型  | 内容   | 备注   |
+|-------------|-----|------|------|
+| wordId      | num | 重复次数 |      |
+| word        | str | 学习时间 |      |
+| translation | str | 翻译   | 可能为空 |
+
+<details>
+<summary>查看响应示例：</summary>
+
+```json
+{
+  "errcode": 200,
+  "errmsg": null,
+  "wordList": [
+    {
+      "wordId": 23806,
+      "word": "all",
+      "translation": "a. 所有的, 全部的, 一切的\nadv. 全部, 全然\npron. 全部\nn. 全部",
+      "phonetic": "ɒ:l",
+      "inNotebook": false,
+      "record": {
+        "EF": "2.5",
+        "NOI": 2,
+        "lastToLearn": "2022-08-09T14:05:33.308Z",
+        "nextToLearn": "2022-08-11T14:05:33.308Z",
+        "master": true,
+        "next_n": 2
+      },
+      "sampleList": [
+        {
+          "wordId": 464284,
+          "word": "nationality",
+          "translation": "n. 国籍, 国家, 民族性\n[法] 国家, 民族, 国民"
+        },
+        {
+          "wordId": 585492,
+          "word": "regardless",
+          "translation": "a. 不管, 不注意, 不顾"
+        },
+        {
+          "wordId": 407716,
+          "word": "look",
+          "translation": "n. 一看, 神色, 样子, 面容\nvi. 看, 注意, 朝着, 显得\nvt. 打量, 看上去与...一样, 以眼色(或脸色)显示, 期待"
+        },
+        {
+          "wordId": 681469,
+          "word": "sympathy",
+          "translation": "n. 同情, 赞同, 怜悯, 慰问, 吊唁\n[医] 交感[作用], 同感[作用], 感应, 同情"
+        },
+        {
+          "wordId": 478179,
+          "word": "nor",
+          "translation": "conj. 也不, 也没有\n[计] 或非"
+        }
+      ]
+    }
+  ]
+}
+```
+
+</details>
+
+## 添加单词到生词本
+
+> https://loaclhost:5301/word/toggleAddToNB
+*请求方式：POST*
+
+**url参数：**
+
+Content-Type: application/json
+
+| 参数名    | 类型   | 内容   | 必要性 | 备注                       |
+|--------|------|------|-----|--------------------------|
+| userId | num  | 用户id | 必要  |                          |
+| wordId | num  | 单词id | 必要  |                          |
+| add    | bool | 是否添加 | 必要  | true代表添加单词<br/>false删除单词 |
+
+**json回复：**
+
+根对象：
+
+| 字段      | 类型  | 内容   | 备注                   |
+|---------|-----|------|----------------------|
+| errcode | num | 返回值  | 0 请求成功<br/>500 服务器错误 |
+| errmsg  | str | 错误信息 |                      |
+
+<details>
+<summary>查看响应示例：</summary>
+
+```json
+{
+  "errcode": 0,
+  "errmsg": "OK"
+}
+```
+
+</details>
+
+## 添加学习记录
+
+> https://loaclhost:5301/word/addLearningRecord
+*请求方式：POST*
+
+**url参数：**
+
+Content-Type: application/json
+
+| 参数名    | 类型            | 内容   | 必要性 | 备注  |
+|--------|---------------|------|-----|-----|
+| userId | num           | 用户id | 必要  |     |
+| record | list `record` | 学习记录 | 必要  |     |
+
+`learningRecord`对象：
+
+| 字段          | 类型   | 内容           | 必要性 | 备注               |
+|-------------|------|--------------|-----|------------------|
+| wordId      | num  | 单词id         | 必要  |                  |
+| EF          | str  | EF           | 非必要 | 默认为2.5           |
+| NOI         | num  | 下次需要复习的时间（天） | 非必要 | 默认为1             |
+| next_n      | num  | next_n       | 非必要 | 默认为0             |
+| lastToLearn | time | 最后一次学习的时间    | 非必要 | 默认为现在            |
+| nextToLearn | time | 下次学习的时间      | 非必要 | 默认为最后一次学习的时间的一天后 |
+| master      | bool | 是否掌握了单词      | 非必要 | 默认false          |
+| completed   | bool | 是否完成学习       | 非必要 | 默认false          |
+| repeatTimes | num  | 重复次数         | 非必要 | 默认0              |
+| createTime  | tiem | 创建记录的时间      | 非必要 | 默认为现在            |
+
+**json回复：**
+
+根对象：
+
+| 字段      | 类型  | 内容   | 备注                   |
+|---------|-----|------|----------------------|
+| errcode | num | 返回值  | 0 请求成功<br/>500 服务器错误 |
+| errmsg  | str | 错误信息 |                      |
+
+<details>
+<summary>查看响应示例：</summary>
+
+```json
+{
+  "errcode": 0,
+  "errmsg": "OK"
+}
+```
+
+</details>
+
+## 更新学习记录
+
+> https://loaclhost:5301/word/updateLearningRecord
+*请求方式：POST*
+
+**url参数：**
+
+Content-Type: application/json
+
+| 参数名    | 类型            | 内容   | 必要性 | 备注  |
+|--------|---------------|------|-----|-----|
+| userId | num           | 用户id | 必要  |     |
+| record | list `record` | 学习记录 | 必要  |     |
+
+`learningRecord`对象：
+
+| 字段          | 类型   | 内容           | 必要性 | 备注  |
+|-------------|------|--------------|-----|-----|
+| wordId      | num  | 单词id         | 必要  |     |
+| EF          | str  | EF           | 必要  |     |
+| NOI         | num  | 下次需要复习的时间（天） | 必要  |     |
+| next_n      | num  | next_n       | 必要  |     |
+| lastToLearn | time | 最后一次学习的时间    | 必要  |     |
+| nextToLearn | time | 下次学习的时间      | 必要  |     |
+| master      | bool | 是否掌握了单词      | 必要  |     |
+| quality     | num  | 学习质量         | 必要  |     |
+
+**json回复：**
+
+根对象：
+
+| 字段      | 类型  | 内容   | 备注                   |
+|---------|-----|------|----------------------|
+| errcode | num | 返回值  | 0 请求成功<br/>500 服务器错误 |
+| errmsg  | str | 错误信息 |                      |
+
+<details>
+<summary>查看响应示例：</summary>
+
+```json
+{
+  "errcode": 0,
+  "errmsg": "OK"
 }
 ```
 
