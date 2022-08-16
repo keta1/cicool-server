@@ -36,8 +36,8 @@ fun updateLearningRecord() {
                     val (OF, record) = `Sm-5`.sm_5(ofMatrix, it)
                     LearnRecord.find { LearnRecordDb.userId.eq(userId) and LearnRecordDb.wordId.eq(it.wordId) }
                         .first().apply {
-                            this.lastToLearn = record.last_l
-                            this.nextToLearn = record.next_l!!
+                            this.lastToLearn = record.lastToLearn
+                            this.nextToLearn = record.nextToLearn
                             this.NOI = record.NOI
                             this.next_n = record.next_n
                             this.master = record.master
@@ -68,7 +68,7 @@ fun updateLearningRecord() {
 @Serializable
 data class UpdateLearningRecordReq(
     val userId: Int,
-    val wordLearningRecord: List<LearningRecord>
+    val record: List<LearningRecord>
 ) {
     @Serializable
     data class LearningRecord(
@@ -77,8 +77,8 @@ data class UpdateLearningRecordReq(
         val quality: Int,
         val NOI: Int,
         val next_n: Int,
-        val last_l: Instant,
-        val next_l: Instant? = null,
+        val lastToLearn: Instant,
+        val nextToLearn: Instant,
         val master: Boolean
     )
 }

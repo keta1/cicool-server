@@ -24,7 +24,7 @@ context(WordRouting)
 fun getReviewData() {
     routing.post("cicool/word/getReviewData") {
         call.catching {
-            val (userId, wordBookId, groupSize, sample) = receive<GetReviewDataReq>()
+            val (userId, wordBookId, size, sample) = receive<GetReviewDataReq>()
             icu.ketal.plugins.user.check(userId, request)
             val sampleSize = if (sample) 5 else 0
             val rsp = transaction {
@@ -33,20 +33,19 @@ fun getReviewData() {
                     LearnRecordDb.userId.eq(userId) and
                             LearnRecordDb.nextToLearn.lessEq(Clock.System.now())
                 }.orderBy(LearnRecordDb.nextToLearn to SortOrder.DESC)
-                    .limit(groupSize).asSequence()
+                    .limit(size).asSequence()
                 val noteBook = NoteBook.find { NoteBookDb.userId eq userId }
                 val words = learnData.map { Word.findById(it.wordId)!! }
                     .filter { wordInBook.any { word -> word.wordId == it.id.value } }
-                    .mapIndexed { index, word ->
+                    .map { word ->
                         GetReviewDataRsq.SWord(
-                            index,
                             word,
                             noteBook.any { it.wordId == word.id.value },
                             GetReviewDataRsq.LearningRecord(learnData.first { it.wordId == word.id.value }),
                             genSample(wordBookId, sampleSize)
                         )
                     }.toList()
-                GetReviewDataRsq(errcode = 200, data = GetReviewDataRsq.Data(words))
+                GetReviewDataRsq(errcode = 200, wordList = words)
             }
             respond(rsp)
         }
@@ -61,7 +60,7 @@ private fun genSample(wordBookId: Int, size: Int): List<GetReviewDataRsq.Sample>
             .limit(size)
             .asSequence()
             .map { Word.findById(it.wordId)!! }
-            .mapIndexed { index, word -> GetReviewDataRsq.Sample(index, word) }
+            .map { word -> GetReviewDataRsq.Sample(word) }
             .toList()
     }
 }
@@ -70,7 +69,7 @@ private fun genSample(wordBookId: Int, size: Int): List<GetReviewDataRsq.Sample>
 data class GetReviewDataReq(
     val userId: Int,
     val wordBookId: Int,
-    val groupSize: Int = 10,
+    val size: Int = 10,
     val sample: Boolean = true
 )
 
@@ -78,16 +77,10 @@ data class GetReviewDataReq(
 data class GetReviewDataRsq(
     val errcode: Int = 0,
     val errmsg: String? = null,
-    val data: Data
+    val wordList: List<SWord>
 ) {
     @Serializable
-    data class Data(
-        val wordList: List<SWord>
-    )
-
-    @Serializable
     data class SWord(
-        val id: Int,
         val wordId: Int,
         val word: String,
         val translation: String?,
@@ -96,8 +89,7 @@ data class GetReviewDataRsq(
         val record: LearningRecord,
         val sampleList: List<Sample>
     ) {
-        constructor(id: Int, word: Word, inNotebook: Boolean, record: LearningRecord, sampleList: List<Sample>) : this(
-            id,
+        constructor(word: Word, inNotebook: Boolean, record: LearningRecord, sampleList: List<Sample>) : this(
             word.id.value,
             word.word,
             word.translation,
@@ -129,13 +121,11 @@ data class GetReviewDataRsq(
 
     @Serializable
     data class Sample(
-        val id: Int,
         val wordId: Int,
         val word: String,
         val translation: String?
     ) {
-        constructor(id: Int, word: Word) : this(
-            id,
+        constructor(word: Word) : this(
             word.id.value,
             word.word,
             word.translation
