@@ -87,15 +87,15 @@ Content-Type: application/json
 
 `book`对象：
 
-| 字段          | 类型  | 内容   | 备注             |
-|-------------|-----|------|----------------|
-| bookId      | num | 词书id |                |
-| name        | str | 名字   |                |
-| description | str | 描述   |                |
-| total       | num | 单词总数 |                |
-| coverType   | str | 封面类型 | color/imageUrl |
-| color       | str | 颜色值  | 可能为空           |
-| coverUrl    | str | 图片连接 | 可能为空           |
+| 字段          | 类型  | 内容   | 备注        |
+|-------------|-----|------|-----------|
+| bookId      | num | 词书id |           |
+| name        | str | 名字   |           |
+| description | str | 描述   |           |
+| total       | num | 单词总数 |           |
+| coverType   | str | 封面类型 | color/pic |
+| color       | str | 颜色值  | 可能为空      |
+| coverUrl    | str | 图片连接 | 可能为空      |
 
 <details>
 <summary>查看响应示例：</summary>
