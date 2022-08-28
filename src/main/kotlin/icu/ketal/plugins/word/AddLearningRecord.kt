@@ -3,6 +3,7 @@ package icu.ketal.plugins.word
 import icu.ketal.dao.DailySum
 import icu.ketal.dao.LearnRecord
 import icu.ketal.data.ServiceError
+import icu.ketal.serializers.TimeStampSerializer
 import icu.ketal.table.DailySumDb
 import icu.ketal.utils.catching
 import icu.ketal.utils.now
@@ -67,7 +68,9 @@ data class AddLearningRecordReq(
     @Serializable
     data class LearningRecord(
         val wordId: Int,
+        @Serializable(with = TimeStampSerializer::class)
         val lastToLearn: Instant = Clock.System.now(),
+        @Serializable(with = TimeStampSerializer::class)
         val nextToLearn: Instant = lastToLearn.plus(1, DAY, timeZone),
         val EF: String = "2.5",
         val NOI: Int = 1,
@@ -75,6 +78,7 @@ data class AddLearningRecordReq(
         val completed: Boolean = false,
         val repeatTimes: Int = 0,
         val master: Boolean = false,
+        @Serializable(with = TimeStampSerializer::class)
         val createTime: Instant = lastToLearn
     )
 }

@@ -1,8 +1,8 @@
 package icu.ketal.plugins.statistic
 
 import icu.ketal.dao.DailySum
+import icu.ketal.serializers.DurationSerializer
 import icu.ketal.table.DailySumDb
-import icu.ketal.utils.DurationSerializer
 import icu.ketal.utils.catching
 import icu.ketal.utils.now
 import io.ktor.server.application.call

@@ -5,6 +5,7 @@ import icu.ketal.dao.LearnRecord
 import icu.ketal.dao.User
 import icu.ketal.data.OFMatrix
 import icu.ketal.data.ServiceError
+import icu.ketal.serializers.TimeStampSerializer
 import icu.ketal.table.DailySumDb
 import icu.ketal.table.LearnRecordDb
 import icu.ketal.utils.`Sm-5`
@@ -77,7 +78,9 @@ data class UpdateLearningRecordReq(
         val quality: Int,
         val NOI: Int,
         val next_n: Int,
+        @Serializable(with = TimeStampSerializer::class)
         val lastToLearn: Instant,
+        @Serializable(with = TimeStampSerializer::class)
         val nextToLearn: Instant,
         val master: Boolean
     )

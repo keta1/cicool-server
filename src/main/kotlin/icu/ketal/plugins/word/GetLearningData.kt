@@ -4,6 +4,7 @@ import icu.ketal.dao.LearnRecord
 import icu.ketal.dao.NoteBook
 import icu.ketal.dao.Word
 import icu.ketal.dao.WordInBook
+import icu.ketal.serializers.TimeStampSerializer
 import icu.ketal.table.LearnRecordDb
 import icu.ketal.table.NoteBookDb
 import icu.ketal.table.WordInBookDb
@@ -113,6 +114,7 @@ data class GetLearningDataRsq(
     @Serializable
     data class LearningRecord(
         val repeatTimes: Int,
+        @Serializable(with = TimeStampSerializer::class)
         val learnTime: Instant
     ) {
         constructor(learnRecord: LearnRecord) : this(

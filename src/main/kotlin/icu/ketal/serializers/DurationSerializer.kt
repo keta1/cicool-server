@@ -1,4 +1,4 @@
-package icu.ketal.utils
+package icu.ketal.serializers
 
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.descriptors.PrimitiveKind

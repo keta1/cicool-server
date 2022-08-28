@@ -4,6 +4,7 @@ import icu.ketal.dao.LearnRecord
 import icu.ketal.dao.NoteBook
 import icu.ketal.dao.Word
 import icu.ketal.dao.WordInBook
+import icu.ketal.serializers.TimeStampSerializer
 import icu.ketal.table.LearnRecordDb
 import icu.ketal.table.NoteBookDb
 import icu.ketal.table.WordInBookDb
@@ -104,7 +105,9 @@ data class GetReviewDataRsq(
     data class LearningRecord(
         val EF: String,
         val NOI: Int,
+        @Serializable(with = TimeStampSerializer::class)
         val lastToLearn: Instant,
+        @Serializable(with = TimeStampSerializer::class)
         val nextToLearn: Instant,
         val master: Boolean,
         val next_n: Int
