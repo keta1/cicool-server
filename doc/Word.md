@@ -261,8 +261,8 @@ Content-Type: application/json
 
 | 字段          | 类型  | 内容   | 备注   |
 |-------------|-----|------|------|
-| wordId      | num | 重复次数 |      |
-| word        | str | 学习时间 |      |
+| wordId      | num | 单词id |      |
+| word        | str | 单词   |      |
 | translation | str | 翻译   | 可能为空 |
 
 <details>
@@ -376,7 +376,7 @@ Content-Type: application/json
 
 ```json
 {
-  "errcode": 200,
+  "errcode": 0,
   "errmsg": null,
   "wordList": [
     {
@@ -388,8 +388,8 @@ Content-Type: application/json
       "record": {
         "EF": "2.5",
         "NOI": 2,
-        "lastToLearn": "2022-08-09T14:05:33.308Z",
-        "nextToLearn": "2022-08-11T14:05:33.308Z",
+        "lastToLearn": 1660053933,
+        "nextToLearn": 1660226733,
         "master": true,
         "next_n": 2
       },

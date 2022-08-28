@@ -248,7 +248,7 @@ Content-Type: application/json
 
 | 字段        | 类型   | 内容      | 备注  |
 |-----------|------|---------|-----|
-| learnTime | time | 学习时间    |     |
+| learnTime | time | 学习的时间   |     |
 | learn     | str  | 学习的单词数量 |     |
 | review    | str  | 复习的单词数量 |     |
 
