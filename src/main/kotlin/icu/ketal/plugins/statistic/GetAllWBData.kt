@@ -24,7 +24,6 @@ fun getAllWBData() {
     }
 }
 
-
 @Serializable
 data class GetAllWBDataReq(
     val userId: Int

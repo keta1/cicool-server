@@ -14,11 +14,12 @@ context(UserRouting)
 fun changeUserInfo() {
     routing.post("cicool/user/changeUserInfo") {
         call.catching {
-            val (id, nickName) = receive<ChangeUserInfoRequest>()
+            val (id, nickName, avatarPic) = receive<ChangeUserInfoRequest>()
             check(id, request)
             transaction {
                 val user = User.findById(id)!!
                 nickName?.let { user.nickName = it }
+                avatarPic?.let { user.avatarPic = it }
             }
             respondError(ServiceError.OK)
         }
@@ -28,5 +29,6 @@ fun changeUserInfo() {
 @Serializable
 data class ChangeUserInfoRequest(
     var userId: Int,
-    var nickName: String? = null
+    var nickName: String? = null,
+    var avatarPic: String? = null
 )
