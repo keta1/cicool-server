@@ -238,4 +238,42 @@ Content-Type: application/json
   "errmsg": "OK"
 }
 ```
+
+</details>
+
+## 修改用户设置
+
+> https://loaclhost:5301/cicool/user/changeUserSetting
+*请求方式：POST*
+
+认证方式：Cookie(TOKEN)
+
+**url参数：**
+
+Content-Type: application/json
+
+| 参数名      | 类型  | 内容   | 必要性 | 备注  |
+|----------|-----|------|-----|-----|
+| userId   | num | 用户id | 必要  |     |
+| settings | str | 用户设置 | 必要  |     |
+
+**json回复：**
+
+根对象：
+
+| 字段      | 类型  | 内容   | 备注                   |
+|---------|-----|------|----------------------|
+| errcode | num | 返回值  | 0 请求成功<br/>500 服务器错误 |
+| errmsg  | str | 错误信息 |                      |
+
+<details>
+<summary>查看响应示例：</summary>
+
+```json
+{
+  "errcode": 0,
+  "errmsg": "OK"
+}
+```
+
 </details>

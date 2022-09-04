@@ -8,6 +8,7 @@ object UserDb : IntIdTable("user") {
     val openId = text("openid")
     val sessionKey = text("session_key")
     val salt = text("salt")
+    val settings = text("settings").default("{}")
     val createTime = long("c_time").default(-1)
     val lastLogin = long("last_login").default(-1)
     val nickName = text("nick_name").default("")
