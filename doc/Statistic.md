@@ -5,6 +5,7 @@
 - [获取指定词书数据](#获取指定词书数据)
 - [获取所有学习数据](#获取所有学习数据)
 - [获取今日学习数据](#获取今日学习数据)
+- [获取指定时间段统计数据](#获取指定时间段统计数据)
 - [获取每日统计数据](#获取每日统计数据)
 - [获取生词本单词](#获取生词本单词)
 - [获取指定词书学习过的单词](#获取指定词书学习过的单词)
@@ -264,6 +265,58 @@ Content-Type: application/json
     "learn": 0,
     "review": 0
   }
+}
+```
+
+</details>
+
+## 获取指定时间段统计数据
+
+> https://loaclhost:5301/statistic/getDailySumByDate
+*请求方式：POST*
+
+**url参数：**
+
+Content-Type: application/json
+
+| 参数名       | 类型   | 内容   | 必要性 | 备注    |
+|-----------|------|------|-----|-------|
+| userId    | num  | 用户id | 必要  |       |
+| startDate | date | 开始日期 | 必要  |       |
+| endDate   | date | 结束日期 | 非必要 | 默认为今天 |
+
+**json回复：**
+
+根对象：
+
+| 字段       | 类型  | 内容   | 备注  |
+|----------|-----|------|-----|
+| errcode  | num | 返回值  |     |
+| errmsg   | str | 错误信息 |     |
+| dailySum | obj | 学习数据 |     |
+
+`dailySum`对象：
+
+| 字段     | 类型   | 内容      | 备注  |
+|--------|------|---------|-----|
+| date   | date | 日期      |     |
+| learn  | num  | 学习的单词数量 |     |
+| review | num  | 复习的单词数量 |     |
+
+<details>
+<summary>查看响应示例：</summary>
+
+```json
+{
+  "errcode": 0,
+  "errmsg": null,
+  "dailySum": [
+    {
+      "date": "2022-08-11",
+      "learn": 0,
+      "review": 5
+    }
+  ]
 }
 ```
 
