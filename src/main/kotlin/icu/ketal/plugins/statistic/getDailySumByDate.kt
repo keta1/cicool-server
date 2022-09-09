@@ -4,6 +4,7 @@ import icu.ketal.dao.DailySum
 import icu.ketal.data.ServiceError
 import icu.ketal.serializers.TimeStampSerializer
 import icu.ketal.table.DailySumDb
+import icu.ketal.utils.LocalDateProgression
 import icu.ketal.utils.localDate
 import icu.ketal.utils.logger
 import icu.ketal.utils.respondError
@@ -25,15 +26,17 @@ fun getDailySumByDate() {
             val (userId, _startDate, _endDate) = receive<GetDailySumByDateReq>()
             val rsq = transaction {
                 val now = Clock.System.now()
-                logger.info("mow is ${now.epochSeconds}")
                 if (_startDate > _endDate || _startDate > now || _endDate > now) {
                     throw ServiceError.BAD_REQUEST
                 }
                 val (startDate, endDate) = Pair(_startDate.localDate, _endDate.localDate)
                 val dailySum =
                     DailySum.find { DailySumDb.userId.eq(userId) and DailySumDb.date.between(startDate, endDate) }
-                        .map { GetDailySumByDateRsq.Data(it) }
-                GetDailySumByDateRsq(dailySum = dailySum)
+                val allSum = LocalDateProgression(startDate, endDate).map { date ->
+                    val sum = dailySum.find { it.date == date }
+                    GetDailySumByDateRsq.Data(date, sum?.learn ?: 0, sum?.review ?: 0)
+                }
+                GetDailySumByDateRsq(dailySum = allSum)
             }
             call.respond(rsq)
         }.onFailure {
@@ -63,11 +66,5 @@ data class GetDailySumByDateRsq(
         val date: LocalDate,
         val learn: Int = 0,
         val review: Int = 0
-    ) {
-        constructor(sum: DailySum) : this(
-            date = sum.date,
-            learn = sum.learn,
-            review = sum.review
-        )
-    }
+    )
 }
