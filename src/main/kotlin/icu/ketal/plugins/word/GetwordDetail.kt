@@ -59,7 +59,7 @@ data class GetWordDetailRsp(
         val translation: String?,
         val phonetic: String?,
         val definition: String?,
-        val collins: Int,
+        val collins: Int?,
         val bnc: Int?,
         val frq: Int?,
         val exchange: String?,
