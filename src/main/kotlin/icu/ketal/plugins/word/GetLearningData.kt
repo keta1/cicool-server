@@ -37,7 +37,7 @@ fun getLearningData() {
                             // filter words that have been learned
                             WordInBookDb.wordId.notInList(learnData.filter { it.completed }.map { it.wordId })
                 }
-                    .orderBy(WordInBookDb.bookId to SortOrder.DESC)
+                    .orderBy(Random() to SortOrder.DESC)
                     .limit(size)
                     .asSequence()
                     .map { Word.findById(it.wordId)!! }
