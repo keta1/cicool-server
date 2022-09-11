@@ -21,6 +21,8 @@ import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.transactions.transaction
 
+val reviewDate = intArrayOf(1, 1, 3, 7, 31)
+
 context(WordRouting)
 fun getReviewData() {
     routing.post("cicool/word/getReviewData") {
@@ -31,8 +33,7 @@ fun getReviewData() {
             val rsp = transaction {
                 val wordInBook = WordInBook.find { WordInBookDb.bookId eq wordBookId }.toList()
                 val learnData = LearnRecord.find {
-                    LearnRecordDb.userId.eq(userId) and
-                            LearnRecordDb.nextToLearn.lessEq(Clock.System.now())
+                    LearnRecordDb.userId.eq(userId) and LearnRecordDb.nextToLearn.lessEq(Clock.System.now())
                 }.orderBy(LearnRecordDb.nextToLearn to SortOrder.DESC)
                     .limit(size).asSequence()
                 val noteBook = NoteBook.find { NoteBookDb.userId eq userId }
@@ -52,7 +53,6 @@ fun getReviewData() {
         }
     }
 }
-
 
 private fun genSample(wordBookId: Int, size: Int): List<GetReviewDataRsq.Sample> {
     return transaction {
@@ -103,22 +103,16 @@ data class GetReviewDataRsq(
 
     @Serializable
     data class LearningRecord(
-        val EF: String,
-        val NOI: Int,
         @Serializable(with = TimeStampSerializer::class)
         val lastToLearn: Instant,
         @Serializable(with = TimeStampSerializer::class)
         val nextToLearn: Instant,
-        val master: Boolean,
-        val next_n: Int
+        val repeatTimes: Int
     ) {
         constructor(learnRecord: LearnRecord) : this(
-            learnRecord.EF,
-            learnRecord.NOI,
             learnRecord.lastToLearn,
             learnRecord.nextToLearn,
-            learnRecord.master,
-            learnRecord.next_n
+            learnRecord.repeatTimes
         )
     }
 

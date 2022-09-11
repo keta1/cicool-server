@@ -16,4 +16,3 @@ internal inline fun <reified T> T.encodeToJson(): String {
 internal inline fun <reified T> String.decodeToDataClass(): T {
     return json.decodeFromString(this)
 }
-

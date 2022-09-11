@@ -20,7 +20,6 @@ fun Application.configureWordRouting() {
             getReviewData()
             toggleAddToNB()
             addLearningRecord()
-            updateLearningRecord()
         }
     }
 }
