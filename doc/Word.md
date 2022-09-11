@@ -7,7 +7,6 @@
 - [获取复习数据](#获取复习数据)
 - [添加单词到生词本](#添加单词到生词本)
 - [添加学习记录](#添加学习记录)
-- [更新学习记录](#更新学习记录)
 
 ---
 
@@ -349,19 +348,7 @@ Content-Type: application/json
 | translation    | str           | 翻译         | 可能为空             |
 | phonetic       | str           | 音标         | 可能是美式也可能是英式，可能为空 |
 | inNotebook     | bool          | 是否在用户的生词本  |                  |
-| learningRecord | obj           | 之前未完成的学习记录 | 可能为空             |
 | sampleList     | list `Sample` | 混淆列表       |                  |
-
-`learningRecord`对象：
-
-| 字段          | 类型   | 内容           | 备注  |
-|-------------|------|--------------|-----|
-| EF          | str  | EF           |     |
-| NOI         | num  | 下次需要复习的时间（天） |     |
-| lastToLearn | time | 最后一次学习的时间    |     |
-| nextToLearn | time | 下次学习的时间      |     |
-| master      | bool | 是否掌握了单词      |     |
-| next_n      | num  | next_n       |     |
 
 `Sample`对象：
 
@@ -482,63 +469,11 @@ Content-Type: application/json
 | 字段          | 类型   | 内容           | 必要性 | 备注               |
 |-------------|------|--------------|-----|------------------|
 | wordId      | num  | 单词id         | 必要  |                  |
-| EF          | str  | EF           | 非必要 | 默认为2.5           |
-| NOI         | num  | 下次需要复习的时间（天） | 非必要 | 默认为1             |
-| next_n      | num  | next_n       | 非必要 | 默认为0             |
 | lastToLearn | time | 最后一次学习的时间    | 非必要 | 默认为现在            |
-| nextToLearn | time | 下次学习的时间      | 非必要 | 默认为最后一次学习的时间的一天后 |
 | master      | bool | 是否掌握了单词      | 非必要 | 默认false          |
 | completed   | bool | 是否完成学习       | 非必要 | 默认false          |
 | repeatTimes | num  | 重复次数         | 非必要 | 默认0              |
 | createTime  | tiem | 创建记录的时间      | 非必要 | 默认为现在            |
-
-**json回复：**
-
-根对象：
-
-| 字段      | 类型  | 内容   | 备注                   |
-|---------|-----|------|----------------------|
-| errcode | num | 返回值  | 0 请求成功<br/>500 服务器错误 |
-| errmsg  | str | 错误信息 |                      |
-
-<details>
-<summary>查看响应示例：</summary>
-
-```json
-{
-  "errcode": 0,
-  "errmsg": "OK"
-}
-```
-
-</details>
-
-## 更新学习记录
-
-> https://loaclhost:5301/word/updateLearningRecord
-*请求方式：POST*
-
-**url参数：**
-
-Content-Type: application/json
-
-| 参数名    | 类型            | 内容   | 必要性 | 备注  |
-|--------|---------------|------|-----|-----|
-| userId | num           | 用户id | 必要  |     |
-| record | list `record` | 学习记录 | 必要  |     |
-
-`learningRecord`对象：
-
-| 字段          | 类型   | 内容           | 必要性 | 备注  |
-|-------------|------|--------------|-----|-----|
-| wordId      | num  | 单词id         | 必要  |     |
-| EF          | str  | EF           | 必要  |     |
-| NOI         | num  | 下次需要复习的时间（天） | 必要  |     |
-| next_n      | num  | next_n       | 必要  |     |
-| lastToLearn | time | 最后一次学习的时间    | 必要  |     |
-| nextToLearn | time | 下次学习的时间      | 必要  |     |
-| master      | bool | 是否掌握了单词      | 必要  |     |
-| quality     | num  | 学习质量         | 必要  |     |
 
 **json回复：**
 
