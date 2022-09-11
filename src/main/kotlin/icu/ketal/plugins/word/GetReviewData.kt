@@ -4,7 +4,6 @@ import icu.ketal.dao.LearnRecord
 import icu.ketal.dao.NoteBook
 import icu.ketal.dao.Word
 import icu.ketal.dao.WordInBook
-import icu.ketal.serializers.TimeStampSerializer
 import icu.ketal.table.LearnRecordDb
 import icu.ketal.table.NoteBookDb
 import icu.ketal.table.WordInBookDb
@@ -14,7 +13,6 @@ import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import io.ktor.server.routing.post
 import kotlinx.datetime.Clock
-import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
 import org.jetbrains.exposed.sql.Random
 import org.jetbrains.exposed.sql.SortOrder
@@ -43,7 +41,6 @@ fun getReviewData() {
                         GetReviewDataRsq.SWord(
                             word,
                             noteBook.any { it.wordId == word.id.value },
-                            GetReviewDataRsq.LearningRecord(learnData.first { it.wordId == word.id.value }),
                             genSample(wordBookId, sampleSize)
                         )
                     }.toList()
@@ -87,32 +84,15 @@ data class GetReviewDataRsq(
         val translation: String?,
         val phonetic: String?,
         val inNotebook: Boolean,
-        val record: LearningRecord,
         val sampleList: List<Sample>
     ) {
-        constructor(word: Word, inNotebook: Boolean, record: LearningRecord, sampleList: List<Sample>) : this(
+        constructor(word: Word, inNotebook: Boolean, sampleList: List<Sample>) : this(
             word.id.value,
             word.word,
             word.translation,
             word.phonetic,
             inNotebook,
-            record,
             sampleList
-        )
-    }
-
-    @Serializable
-    data class LearningRecord(
-        @Serializable(with = TimeStampSerializer::class)
-        val lastToLearn: Instant,
-        @Serializable(with = TimeStampSerializer::class)
-        val nextToLearn: Instant,
-        val repeatTimes: Int
-    ) {
-        constructor(learnRecord: LearnRecord) : this(
-            learnRecord.lastToLearn,
-            learnRecord.nextToLearn,
-            learnRecord.repeatTimes
         )
     }
 
