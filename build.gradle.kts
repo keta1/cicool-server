@@ -57,7 +57,7 @@ dependencies {
     implementation("io.ktor:ktor-client-okhttp:$ktorVersion")
 
     implementation("ch.qos.logback:logback-classic:$logbackVersion")
-    runtimeOnly("org.xerial:sqlite-jdbc:3.39.2.0")
+    runtimeOnly("org.xerial:sqlite-jdbc:3.39.2.1")
     implementation("org.jetbrains.exposed:exposed-core:$exposedVersion")
     implementation("org.jetbrains.exposed:exposed-dao:$exposedVersion")
     implementation("org.jetbrains.exposed:exposed-kotlin-datetime:$exposedVersion")
