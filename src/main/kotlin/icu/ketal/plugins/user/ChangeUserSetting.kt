@@ -9,6 +9,7 @@ import io.ktor.server.application.call
 import io.ktor.server.request.receive
 import io.ktor.server.routing.post
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonObject
 import org.jetbrains.exposed.sql.transactions.transaction
 
 context(UserRouting)
@@ -17,10 +18,10 @@ fun changeUserSetting() {
         call.catching {
             val (id, settings) = receive<ChangeUserSettingRequest>()
             check(id, request)
-            logger.info(settings)
+            logger.info(settings.toString())
             transaction {
                 val user = User.findById(id)!!
-                user.settings = settings
+                user.settings = settings.toString()
             }
             respondError(ServiceError.OK)
         }
@@ -30,5 +31,5 @@ fun changeUserSetting() {
 @Serializable
 data class ChangeUserSettingRequest(
     var userId: Int,
-    var settings: String
+    var settings: JsonObject
 )
