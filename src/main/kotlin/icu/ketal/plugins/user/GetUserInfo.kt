@@ -38,12 +38,14 @@ data class UserInfoResponse(
         val nickName: String,
         val createTime: Long,
         val lastLogin: Long,
+        var settings: String,
         val bookId: Int
     ) {
         constructor(user: User) : this(
             nickName = user.nickName,
             createTime = user.createTime,
             lastLogin = user.lastLogin,
+            settings = user.settings,
             bookId = user.bookId
         )
     }

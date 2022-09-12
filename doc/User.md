@@ -42,6 +42,7 @@ Content-Type: application/json
 | nickName   | str | 用户昵称      |            |                                                                                                                                         |
 | createTime | num | 账户创建时间    |            |
 | lastLogin  | num | 最后一次登录的时间 |            |
+| settings   | str | 用户设置      |            |
 | bookId     | num | 用户选择的词书id | 若未选择词书则为-1 |
 
 <details>
