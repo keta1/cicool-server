@@ -19,4 +19,4 @@ jobs:
           TARGET_BRANCH: page
           BUILD_SCRIPT: yarn && yarn cicool:build
           BUILD_DIR: cicool/.vuepress/dist
-          CNAME: https://cicool.ketal.icu
+          CNAME: cicool.ketal.icu
