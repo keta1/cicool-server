@@ -1,6 +1,6 @@
 ---
 home: true
-heroImage: /logo.png
+heroImage: /logo.jpg
 actionText: 了解更多
 actionLink: /introduction.html
 features:

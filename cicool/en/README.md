@@ -1,6 +1,6 @@
 ---
 home: true
-heroImage: /logo.png
+heroImage: /logo.jpg
 actionText: Learn more
 actionLink: /en/introduction.html
 features:
