@@ -16,7 +16,7 @@ jobs:
         env:
           ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
           TARGET_REPO: keta1/cicool-server
-          TARGET_BRANCH: docs
-          BUILD_SCRIPT: yarn && yarn docs:build
-          BUILD_DIR: docs/.vuepress/dist
+          TARGET_BRANCH: page
+          BUILD_SCRIPT: yarn && yarn cicool:build
+          BUILD_DIR: cicool/.vuepress/dist
           CNAME: https://cicool.ketal.icu
